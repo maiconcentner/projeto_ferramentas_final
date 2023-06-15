@@ -1,80 +1,282 @@
-\documentclass[12pt, 
-%openright,	
-oneside,		  
-a4paper,			
-english,			
-brazil				 
-]{article}
-%\usepackage{abnt2cite}
-\usepackage[brazil]{babel}
-\usepackage{comment}
-%\usepackage[latin1]{inputenc} %  os acentos s\~a\^aÃÂ£o digitados diretamente pelo teclado
-\usepackage{graphicx} % comando para importar figura de outro programa
-\usepackage{psfrag}
-\usepackage{tabularx}
-\usepackage{amssymb}  %comando para usar simbolos, como /therefore  e /mathbb{R
+\documentclass[12pt]{report}
+
 \usepackage[utf8]{inputenc}
-\usepackage{amsthm,amsfonts,latexsym}
-\usepackage{amsmath,amssymb}
-\usepackage[usenames]{color}    %comando para cores
-\setlength{\topmargin}{-1.0cm}  %-1.0cm
-\setlength{\oddsidemargin}{0.0cm} %0.0cm
-\setlength{\evensidemargin}{-2.0cm} %-2.0cm
-\setlength{\textheight}{24.cm}
-\setlength{\textwidth}{17.cm} %17cm
-%\pagestyle{empty} \setlength{\textwidth}{16cm}
+\usepackage[brazilian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{color,colortbl}
+\usepackage[dvipsnames]{xcolor}
+
+% Layout Paginas
+
+\usepackage[
+top=3cm,
+bottom=2cm,
+left=2cm,
+right=4cm,
+headheight=17pt, % as per the warning by fancyhdr
+includehead,includefoot,
+heightrounded, % to avoid spurious underfull messages
+dvips,
+marginparwidth = 2.5cm
+]{geometry} 
+
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\footnotesize}
+\usepackage{setspace} % linhas
+\onehalfspacing
+
 \usepackage{indentfirst}
-\usepackage{multirow}
-\usepackage[normalem]{ulem}
-\usepackage[table,xcdraw]{xcolor}
-\usepackage{graphicx}
-\usepackage{colortbl}
-\usepackage{hyperref}
-\usepackage{hhline}
-\usepackage{indentfirst}
-\usepackage{enumerate}
-\usepackage[alf]{abntex2cite}
-\renewcommand{\baselinestretch}{1.5}
-\setlength{\textwidth}{16cm}
+
 \usepackage{fancyhdr}
 
+\pagestyle{fancy}
+\lhead{\footnotesize }
+\rhead{\footnotesize }
+\cfoot{\footnotesize \thepage}
+
+\usepackage[affil-it]{authblk}    
+
+% \usepackage{etoolbox} 
+%     \patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+
+\usepackage[Bjornstrup]{fncychap}
+% Opções: Sonny, Lenny, Glenn, Conny, Rejne, Bjarne, Bjornstrup
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%   Pacotes Matematicos
+
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\allowdisplaybreaks 
+\theoremstyle{definition}
+\newtheorem*{definition}{Definição}
+\theoremstyle{plain}    
+\newtheorem{question}{Questão}
+\counterwithin*{question}{section}
+\newtheorem{theorem}{Teorema}
+\newtheorem*{proposition}{Proposição}
+\usepackage{cancel} % para fazer o risco de cancelamento em expressões
+\usepackage{array,booktabs}
+\usepackage{multirow}
+\usepackage{tabularx} % para fazer algumas tabelas mais específicas
+\usepackage{longtable} % para fazer tabelas em mais de uma página
+\usepackage{venndiagram} % pacote para construir facilmente Diagramas de Venn
+\usepackage{makecell} % pacote para criar múltiplas linhas/colunas no ambiente tabular
+\usepackage{diagbox} % pacote para criar divisões na primeira célula da tabela
+% \usepackage[mathcal]{euscript}
+% \usepackage{siunitx} % unidades do SI
+\usepackage{pifont}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Pacotes Utilitários 
+
+\usepackage{graphicx}
+
+\usepackage{pgfplotstable}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{colorbrewer}
+\usepackage{tikz}
+\usetikzlibrary{intersections}
+\usetikzlibrary{patterns}
+\usetikzlibrary{arrows,fit,shapes.geometric}
+\usetikzlibrary{pgfplots.statistics, pgfplots.colorbrewer}
+\usepackage{enumitem}
+
+\usepackage{floatflt}
+\usepackage{float}
+
+\usepackage{sidecap}
+
+\usepackage[verbose]{wrapfig}
+
+\usepackage[font=small,labelfont=bf]{caption}
+
+\usepackage[most,skins]{tcolorbox}
+
+% \usepackage{soulutf8}
+
+\usepackage{hyperref}
+
+\usepackage{chngcntr}
+\usepackage[framemethod=tikz]{mdframed}
+
+\usepackage{romannum}
+
+\usepackage{listings} % para escrever linhas de códigos de programação; a seguir uma configuração personalizada
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstset{inputencoding=utf8/latin1}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	inputencoding=utf8,
+	extendedchars=true,
+	inputencoding=latin1,
+	literate=
+	{á}{{\'a}}1
+	{à}{{\`a}}1
+	{ã}{{\~a}}1
+	{é}{{\'e}}1
+	{ê}{{\^e}}1
+	{í}{{\'i}}1
+	{ó}{{\'o}}1
+	{õ}{{\~o}}1
+	{ú}{{\'u}}1
+	{ü}{{\"u}}1
+	{ç}{{\c{c}}}1
+}
+\lstset{style=mystyle}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     Configuração da Fonte
+
+% \usepackage[T1]{fontenc}
+% \usepackage{textcomp}
+% \usepackage[utf8]{inputenc}
+% \usepackage{tgpagella}
+% \usepackage[variablett]{lmodern}
+% \usepackage{eucal}
+% \usepackage{eulervm}
+% \usepackage{cmbright}
+% \usepackage[math]{anttor}
+\usepackage{mathpazo}
+% \usepackage{mathptmx}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%% Configurações praticas %%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{counter}{Counter}
+\newtheoremstyle{exemplo}
+{\topsep}%
+{\topsep}%
+{\sffamily}%
+{}%
+{\scshape}%
+{.}%
+{.5em}%
+{}%
+\newtheoremstyle{obs}
+{\topsep}%
+{\topsep}%
+{\scshape}%
+{}%
+{\bfseries}%
+{.}%
+{.5em}%
+{}%
+\newtheoremstyle{solution}
+{\topsep}%
+{\topsep}%
+{}%
+{}%
+{\bfseries}%
+{.}%
+{.5em}%
+{}%
+
+\theoremstyle{exemplo}
+\newmdtheoremenv[
+hidealllines=true,
+leftline=true,
+linewidth=7pt,
+innerleftmargin=10pt,
+innerrightmargin=10pt,
+innertopmargin=0pt,
+linecolor=black!10,
+]{example}[counter]{Exemplo}
+
+\theoremstyle{solution}
+\newtheorem*{solution}{Solução}
+
+\theoremstyle{obs}
+\newtheorem*{obs}{Observação}
+
+
+%   Comandos rápidos para conjuntos usuais:
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}} 
+
+%   Comandos rápidos para símbolos usuais:
+\DeclareMathOperator{\Log}{Log} % Logaritmo complexo
+\DeclareMathOperator{\Arg}{Arg} % argumento principal
+\newcommand{\del}{\partial}
+\newcommand{\grad}{\nabla}
+\newcommand{\dd}[1]{{\mathrm{d}#1}}
+
+%   A seguir, será configurado o comando \ccancel para efetuar as cancelações matemáticas:
+\newcommand{\Ccancel}[2][red]{
+	\renewcommand{\CancelColor}{\color{#1}}
+	\cancel{#2}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%   Cabeçalho
+
+\newcommand*{\titleGM}{
+	\begingroup % Create the command for including the title page in the document
+	\hbox{ % Horizontal box
+		\hspace*{0.05\textwidth} % Whitespace to the left of the title page
+		\rule{1pt}{\textheight} % Vertical line
+		\hspace*{0.05\textwidth} % Whitespace between the vertical line and title page text
+		\parbox[b]{\textwidth}{% Paragraph box which restricts text to less than the width of the page
+			{\noindent\Huge\bfseries  Análise Exploratória dos Impactos da COVID-19\\}\\[2\baselineskip] % Title
+			{\LARGE Inferência Estatística - PG Biometria} \\[1\baselineskip]
+			{\large \textit{\textbf{Discentes:} \parbox[t]{0.5\textwidth}{ Maicon Centner Germano \\ Fernando Andrade \\ Douglas de Aquino Carrega}}  \ \   %\textbf{Turma:} 2019 }
+		}\\[4\baselineskip] % Tagline or further description
+		{\large \textsc{ Prof. Thomas N. Vilches }} % Author name
+		
+		\vspace{0.25\textheight} % Whitespace between the title block and the publisher
+		{\noindent Universidade Estadual Paulista "Júlio de Mesquita Filho" \\ Campus de Botucatu }\\[\baselineskip] % Publisher and logo
+	}
+}
+\endgroup
+}
+% Sets margins and page size
+% \pagestyle{empty} % Removes page numbers
+\makeatletter % Need for anything that contains an @ command 
+\renewcommand{\maketitle} % Redefine maketitle to conserve space
+{ \begingroup \vskip 10pt \begin{center} \Huge {\bf \@title}
+	\vskip 10pt \large \@author \hskip 20pt \@date \end{center}
+\vskip 10pt \endgroup \setcounter{footnote}{0} }
+\makeatother % End of region containing @ commands
+
+\AtBeginDocument{\pagenumbering{arabic}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{document}
+
 \thispagestyle{empty}
+\titleGM
 
-\centerline{\Large \bf Análise Exploratória dos Impactos da COVID-19}
-
-\centerline{\Large \bf
-no estado de São Paulo}
-\smallskip
+\tableofcontents
 
 
-
-\begin{center}
-\bigskip\bigskip\bigskip\bigskip\bigskip\bigskip
-{\large{\bf Instituição}: IBB/Unesp - Botucatu}\\
-
-{\large Departamento de Bioestatística, Biologia Vegetal, Parasitologia e Zoologia}  \\[.1cm]
-{\large Mestrado em Biometria}  \\[.1cm]
-\end{center}
-%\medskip
-\bigskip\bigskip\bigskip\bigskip\bigskip\bigskip
-%\centerline{\large \bf N\'ivel: Iniciaç\~ao Cient\'ifica}
-
-\bigskip
-
-\begin{center}
-{{\bf Discentes}: Maicon Centner Germano, Fernando Andrade, Douglas de Aquino Carrega}\\[.1cm]
-Programa de Pós-graduação em Biometria, Unesp - Botucatu.\\[.1cm]
-
-{{\bf Professor}: Thomas N. Vilches}\\[.1cm]
-
-\end{center}
-
-\newpage
-
-\bigskip\bigskip\bigskip
-
-\section{Data Set}
+\chapter{Data Set}
 O dataset "dados-covid-sp" é uma fonte de dados abertos mantida pela SEADE-R (Fundação Sistema Estadual de Análise de Dados do Estado de São Paulo) e disponibilizada no GitHub. Ele contém informações detalhadas sobre a evolução da COVID-19 no estado de São Paulo.
 
 Este conjunto de dados é atualizado regularmente e abrange um período específico, fornecendo uma visão abrangente dos impactos da pandemia na região. Os dados são fornecidos em formato tabular, com cada linha representando um registro individual.
@@ -87,27 +289,31 @@ Ao explorar esse dataset, é possível realizar uma variedade de análises, incl
 
 No geral, o dataset "dados-covid-sp" é uma fonte confiável e abrangente que oferece insights valiosos para compreender o impacto da COVID-19 no estado de São Paulo e auxiliar no desenvolvimento de estratégias eficazes para combater a pandemia.
 
-\section{Objetivo}
+\chapter{Objetivo}
 
-%insira aqui o conteúdo do objetivo
+O objetivo desta análise é explorar a distribuição geográfica dos casos de COVID-19 no estado de São Paulo. O foco será identificar as regiões ou municípios com maior incidência da doença e investigar possíveis correlações com fatores demográficos ou socioeconômicos.
+
+Através da análise de dados, busca-se compreender como a COVID se espalhou geometricamente no estado de São Paulo e quais áreas foram mais afetadas. Além disso, procura-se investigar se existem fatores demográficos tais como densidade populacional, idade média da população, ou socioeconômicos como sendo índice de desenvolvimento humano ou nível de pobreza, que possam estar relacionados com a incidência da doença em diferentes regiões.
+
+Ao identificarmos as áreas com maior incidência de casos, será possível direcionar os esforços e recursos de saúde de forma mais eficaz, implementando medidas de prevenção e controle adequados em tais regiões. Ademais, compreender as possíveis correlações com fatores demográficos e socioeconômicos contribuirá para uma melhor compreensão dos determinantes sociais da saúde relacionados com a COVID-19 em São Paulo.
+
+Essa análise geográfica dos casos de COVID-19 no estado de São Paulo é fundamental para auxiliar no planejamento de ações de saúde pública e na adoção de medidas preventivas específicas de cada região , com o objetivo de mitigar a propagação do vírus e reduzir o impacto da doença na população. 
 
 
-\section{Metodologia}
+\chapter{Metodologia}
 
 \begin{itemize}
-    \item Coleta e Preparação dos Dados: Baixamos o dataset "dados-covid-sp" e realizamos a limpeza dos dados.
-
-    \item Análise Exploratória dos Dados: Exploramos a estrutura dos dados e identificamos variáveis demográficas e socioeconômicas relevantes.
-
-    \item Visualização Geográfica: Utilizamos a biblioteca ggplot2 para criar mapas interativos que mostram a distribuição geográfica dos casos de COVID-19 em São Paulo.
-
-    \item Análise de Correlação: Calculamos correlações entre os casos de COVID-19 e as variáveis demográficas ou socioeconômicas.
-
-    \item Análise Espacial: Aplicamos técnicas de análise espacial para identificar padrões geográficos nos casos de COVID-19.
-
-    \item Interpretação dos Resultados: Analisamos os resultados obtidos e interpretamos as visualizações e correlações encontradas.
+	\item Coleta e Preparação dos Dados: Baixamos o dataset "dados-covid-sp" e realizamos a limpeza dos dados.
+	
+	\item Análise Exploratória dos Dados: Exploramos a estrutura dos dados e identificamos variáveis demográficas e socioeconômicas relevantes.
+	
+	\item Visualização Geográfica: Utilizamos a biblioteca ggplot2 para criar mapas interativos que mostram a distribuição geográfica dos casos de COVID-19 em São Paulo.
+	
+	\item Análise de Correlação: Calculamos correlações entre os casos de COVID-19 e as variáveis demográficas ou socioeconômicas.
+	
+	\item Análise Espacial: Aplicamos técnicas de análise espacial para identificar padrões geográficos nos casos de COVID-19.
+	
+	\item Interpretação dos Resultados: Analisamos os resultados obtidos e interpretamos as visualizações e correlações encontradas.
 \end{itemize}
-
-%aqui vai nossa metodologia
 
 \end{document}
