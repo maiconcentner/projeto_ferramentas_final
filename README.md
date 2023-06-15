@@ -34,3 +34,7 @@ Análise de Correlação: Calculamos correlações entre os casos de COVID-19 e 
 Análise Espacial: Aplicamos técnicas de análise espacial para identificar padrões geográficos nos casos de COVID-19.
 	
 Interpretação dos Resultados: Analisamos os resultados obtidos e interpretamos as visualizações e correlações encontradas.
+
+## REFERÊNCIAS
+[Repositório de dados](https://github.com/seade-R/dados-covid-sp)
+[Boletim completo - SP](https://www.seade.gov.br/coronavirus/)
