@@ -1,4 +1,4 @@
-# Trabalho de conclusão da disciplina de Ferramentas Computacionais de Modelagem - Unesp
+# Análise Exploratória dos Impactos da COVID-19 no estado de São Paulo
 
 ## DATA SET
 O dataset "dados-covid-sp" é uma fonte de dados abertos mantida pela SEADE-R (Fundação Sistema Estadual de Análise de Dados do Estado de São Paulo) e disponibilizada no GitHub. Ele contém informações detalhadas sobre a evolução da COVID-19 no estado de São Paulo.
