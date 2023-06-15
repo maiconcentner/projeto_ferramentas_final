@@ -37,4 +37,5 @@ Interpretação dos Resultados: Analisamos os resultados obtidos e interpretamos
 
 ## REFERÊNCIAS
 [Repositório de dados](https://github.com/seade-R/dados-covid-sp)
+
 [Boletim completo - SP](https://www.seade.gov.br/coronavirus/)
