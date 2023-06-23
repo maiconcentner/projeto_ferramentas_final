@@ -26,3 +26,19 @@ dados_covid_sp_tratado %>%
 
 dados_covid_sp_tratado %>% 
   sapply(function(x) sum(is.nan(x))) # valores NAN
+
+# Total de casos por ano/mes
+dados_covid_sp_tratado$ano_mes <- format(dados_covid_sp_tratado$datahora, "%Y-%m")
+
+casos_mes_ano <- dados_covid_sp_tratado %>% 
+  group_by(ano_mes) %>% 
+  summarise(total_casos = sum(casos))
+
+# plot do gráfico
+ggplot(casos_mes_ano, aes(x = ano_mes, y = total_casos)) +
+  geom_point() +
+  labs(x = "Mês/ano", y = "Total de casos", title = "Total de casos no estado de São Paulo")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
