@@ -34,10 +34,14 @@ casos_mes_ano <- dados_covid_sp_tratado %>%
   group_by(ano_mes) %>% 
   summarise(total_casos = sum(casos))
 
+casos_mes_ano <- casos_mes_ano[order(casos_mes_ano$ano_mes), ]
+
 # plot do gráfico
-ggplot(casos_mes_ano, aes(x = ano_mes, y = total_casos)) +
+casos_mes_ano %>% 
+  ggplot(aes(x = ano_mes, y = total_casos)) +
   geom_point() +
-  labs(x = "Mês/ano", y = "Total de casos", title = "Total de casos no estado de São Paulo")+
+  geom_path() +
+  labs(x = "Ano/mês", y = "Total de casos", title = "Total de casos no estado de São Paulo")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
