@@ -3,6 +3,7 @@ library(dplyr)
 library(rstatix)
 library(ggplot2)
 
+cores <- rcartocolor::carto_pal(12, "Bold")
 # set da pasta de trabalho
 setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
 
@@ -27,22 +28,36 @@ dados_covid_sp_tratado %>%
 dados_covid_sp_tratado %>% 
   sapply(function(x) sum(is.nan(x))) # valores NAN
 
-# Total de casos por ano/mes
+# Total de casos por ano/mes acumulado
 dados_covid_sp_tratado$ano_mes <- format(dados_covid_sp_tratado$datahora, "%Y-%m")
 
 casos_mes_ano <- dados_covid_sp_tratado %>% 
-  group_by(ano_mes) %>% 
+  group_by(datahora) %>% 
   summarise(total_casos = sum(casos))
 
-casos_mes_ano <- casos_mes_ano[order(casos_mes_ano$ano_mes), ]
-
-# plot do gráfico
+# plot do gráfico: total de casos acumulado
 casos_mes_ano %>% 
-  ggplot(aes(x = ano_mes, y = total_casos)) +
-  geom_point() +
-  geom_path() +
-  labs(x = "Ano/mês", y = "Total de casos", title = "Total de casos no estado de São Paulo")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  ggplot(aes(x = datahora, y = total_casos)) +
+  geom_density(fill = cores[8], stat = "identity", alpha = 0.3) +
+  scale_color_manual(values = cores) +
+  theme_bw()+
+  theme(panel.grid = element_blank(),  # Remove as linhas de grade
+        plot.background = element_rect(fill = "white")) +
+  labs(x = "Ano/mês", y = "Total de casos", title = "Total de casos no estado de São Paulo")
+
+# Total de novos casos por dia
+novos_casos_mes_ano <- dados_covid_sp_tratado %>% 
+  group_by(datahora) %>% 
+  summarise(novos_casos = sum(casos_novos))
+
+novos_casos_mes_ano %>% 
+  ggplot(aes(x = datahora, y = novos_casos)) +
+  geom_density(fill = cores[1], stat = "identity", alpha = 0.3) +
+  scale_color_manual(values = cores) +
+  theme_bw()+
+  theme(panel.grid = element_blank(),  # Remove as linhas de grade
+        plot.background = element_rect(fill = "white")) + 
+  labs(x = "Ano/mês", y = "Total de casos", title = "Novos casos por dia no estado de São Paulo")
 
 
 
