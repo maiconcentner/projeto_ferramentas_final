@@ -2,11 +2,13 @@
 library(dplyr)
 library(rstatix)
 library(ggplot2)
-library(rcartocolor)
+
 
 cores <- rcartocolor::carto_pal(12, "Bold")
 # set da pasta de trabalho
-setwd("C:/Users/W10/aula do banana/trabalho/projeto_ferramentas_final/base_dados")
+
+#setwd("C:/Users/W10/aula do banana/trabalho/projeto_ferramentas_final/base_dados")
+setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\base_dados")
 
 # carregando base de dados
 
@@ -59,16 +61,16 @@ novos_casos_mes_ano <- dados_covid_sp_tratado %>%
   summarise(novos_casos = sum(casos_novos))
 
 
-'novos_casos_mes_ano %>%
-  ggplot(aes(x = datahora, y = novos_casos *1e-3)) +
-  geom_line(color = cores[1], size = 0.5) +
-  scale_color_manual(values = cores) +
-  theme_minimal() +
-  theme(panel.grid = element_blank(),
-        plot.background = element_rect(fill = "white")) +
-  labs(x = "Ano/Mês",
-       y = "Novos Casos (x 10³)",
-       title = "Novos Casos por Dia no Estado de São Paulo")'
+#   novos_casos_mes_ano %>%
+#   ggplot(aes(x = datahora, y = novos_casos *1e-3)) +
+#   geom_line(color = cores[1], size = 0.5) +
+#   scale_color_manual(values = cores) +
+#   theme_minimal() +
+#   theme(panel.grid = element_blank(),
+#         plot.background = element_rect(fill = "white")) +
+#   labs(x = "Ano/Mês",
+#        y = "Novos Casos (x 10³)",
+#        title = "Novos Casos por Dia no Estado de São Paulo")
 
 novos_casos_mes_ano %>%
   mutate(datahora = as.POSIXct(datahora)) %>%
@@ -80,3 +82,24 @@ novos_casos_mes_ano %>%
   scale_x_datetime(date_labels = "%Y-%m", date_breaks = "6 month")
 
 
+# Criando um mapa de Calor
+library(tidyverse)
+library(rnaturalearth)
+library(rnaturalearthhires)
+
+devtools::install_github("AndySouth/rnaturalearthhires")
+
+# baixando arquivos de mapa
+
+BRA <- ne_states(
+  country = "Brazil",
+  returnclass = "sf"
+)
+plot(BRA)
+
+# selecionando o estado de SP
+mapa_sp <- BRA[BRA$name_en == "São Paulo", ]
+plot(mapa_sp)
+
+# link bacana que encontrei ensinando: 
+# https://www.youtube.com/watch?v=iw168iDq42U&ab_channel=Prof.Fl%C3%A1vioMaximino
