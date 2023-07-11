@@ -5,7 +5,8 @@ library(ggplot2)
 
 cores <- rcartocolor::carto_pal(12, "Bold")
 # set da pasta de trabalho
-setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
+# setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
+# (fer) comentei a linha anterior linha para me facilitar na hora de rodar o script
 
 # carregando base de dados
 
