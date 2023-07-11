@@ -3,10 +3,17 @@ library(dplyr)
 library(rstatix)
 library(ggplot2)
 
+
 cores <- rcartocolor::carto_pal(12, "Bold")
 # set da pasta de trabalho
+<<<<<<< HEAD
 # setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
 # (fer) comentei a linha anterior linha para me facilitar na hora de rodar o script
+=======
+
+#setwd("C:/Users/W10/aula do banana/trabalho/projeto_ferramentas_final/base_dados")
+setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\base_dados")
+>>>>>>> 249e7523d2f96a87f44753923ea0afd0f98f32bb
 
 # carregando base de dados
 
@@ -36,29 +43,68 @@ casos_mes_ano <- dados_covid_sp_tratado %>%
   group_by(datahora) %>% 
   summarise(total_casos = sum(casos))
 
-# plot do gráfico: total de casos acumulado
+# plot do gráfico: total de casos acumulado 
 casos_mes_ano %>% 
-  ggplot(aes(x = datahora, y = total_casos)) +
+  ggplot(aes(x = datahora, y = total_casos * 1e-6)) +
   geom_density(fill = cores[8], stat = "identity", alpha = 0.3) +
   scale_color_manual(values = cores) +
-  theme_bw()+
+  theme ()+
   theme(panel.grid = element_blank(),  # Remove as linhas de grade
         plot.background = element_rect(fill = "white")) +
-  labs(x = "Ano/mês", y = "Total de casos", title = "Total de casos no estado de São Paulo")
+  labs(x = "Ano",
+       y = expression(paste("Total de Casos (", 10^6, ")")),
+       title = "Evolução dos Casos no Estado de São Paulo") +
+  scale_y_continuous(labels = scales::comma, breaks = scales::pretty_breaks(5))
+
+
+
+
 
 # Total de novos casos por dia
 novos_casos_mes_ano <- dados_covid_sp_tratado %>% 
   group_by(datahora) %>% 
   summarise(novos_casos = sum(casos_novos))
 
-novos_casos_mes_ano %>% 
-  ggplot(aes(x = datahora, y = novos_casos)) +
-  geom_density(fill = cores[1], stat = "identity", alpha = 0.3) +
-  scale_color_manual(values = cores) +
-  theme_bw()+
-  theme(panel.grid = element_blank(),  # Remove as linhas de grade
-        plot.background = element_rect(fill = "white")) + 
-  labs(x = "Ano/mês", y = "Total de casos", title = "Novos casos por dia no estado de São Paulo")
+
+#   novos_casos_mes_ano %>%
+#   ggplot(aes(x = datahora, y = novos_casos *1e-3)) +
+#   geom_line(color = cores[1], size = 0.5) +
+#   scale_color_manual(values = cores) +
+#   theme_minimal() +
+#   theme(panel.grid = element_blank(),
+#         plot.background = element_rect(fill = "white")) +
+#   labs(x = "Ano/Mês",
+#        y = "Novos Casos (x 10³)",
+#        title = "Novos Casos por Dia no Estado de São Paulo")
+
+novos_casos_mes_ano %>%
+  mutate(datahora = as.POSIXct(datahora)) %>%
+  ggplot(aes(x = datahora, y = novos_casos *1e-3)) +
+  geom_line(color = "blue") +
+  geom_smooth(method = "loess", se = FALSE, color = "red") +
+  theme_minimal() +
+  labs(x = "Ano/Mês", y = "Novos Casos (x 10³)", title = "Novos Casos por Dia no Estado de São Paulo") +
+  scale_x_datetime(date_labels = "%Y-%m", date_breaks = "6 month")
 
 
+# Criando um mapa de Calor
+library(tidyverse)
+library(rnaturalearth)
+library(rnaturalearthhires)
 
+devtools::install_github("AndySouth/rnaturalearthhires")
+
+# baixando arquivos de mapa
+
+BRA <- ne_states(
+  country = "Brazil",
+  returnclass = "sf"
+)
+plot(BRA)
+
+# selecionando o estado de SP
+mapa_sp <- BRA[BRA$name_en == "São Paulo", ]
+plot(mapa_sp)
+
+# link bacana que encontrei ensinando: 
+# https://www.youtube.com/watch?v=iw168iDq42U&ab_channel=Prof.Fl%C3%A1vioMaximino
