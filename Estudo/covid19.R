@@ -8,7 +8,7 @@ library(sf)
 library(dplyr)
 library(rio)
 library(readr)
-
+library(scales)
 
 
 # carregando base de dados
@@ -79,8 +79,7 @@ max(dataset_final_2020$total_casos_novos)
 
 ## graficos 
   cores <- rcartocolor::carto_pal(6, "SunsetDark")
-  library(scales)
-  
+ 
 ## 2020
 ggplot()+
   geom_sf(data = dataset_final_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
@@ -90,7 +89,8 @@ ggplot()+
                        name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())
+        axis.ticks = element_blank())+
+  theme_void() #deixar fundo branco
 
 ## 2021
 
@@ -102,7 +102,8 @@ ggplot()+
                        name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())
+        axis.ticks = element_blank())+
+  theme_void() #deixar fundo branco
 
 ## 2022
 
@@ -114,6 +115,7 @@ ggplot()+
                        name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())
+        axis.ticks = element_blank())+
+  theme_void() #deixar fundo branco
 
 ### Precisamos ajustar as legendas nos gráficos
