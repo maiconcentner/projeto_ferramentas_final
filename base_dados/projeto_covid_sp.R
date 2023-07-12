@@ -17,8 +17,8 @@ cores <- rcartocolor::carto_pal(12, "Bold")
 
 # carregando base de dados
 
-dados_covid_sp <- read.csv('dados/dados_covid_sp.csv', sep = ";")
-base_sp <- read.csv('dados/sp.csv', sep = ";")
+dados_covid_sp <- read.csv('dados_covid_sp.csv', sep = ";")
+base_sp <- read.csv('sp.csv', sep = ";")
 
 # Tratamento da base de dados
 glimpse(dados_covid_sp)
@@ -86,27 +86,4 @@ novos_casos_mes_ano %>%
   labs(x = "Ano/Mês", y = "Novos Casos (x 10³)", title = "Novos Casos por Dia no Estado de São Paulo") +
   scale_x_datetime(date_labels = "%Y-%m", date_breaks = "6 month")
 
-
-# Criando um mapa de Calor
-
-devtools::install_github("AndySouth/rnaturalearthhires")
-library(tidyverse)
-library(rnaturalearth)
-library(rnaturalearthhires)
-library(sp)
-
-# baixando arquivos de mapa
-
-BRA <- ne_states(
-  country = "Brazil",
-  returnclass = "sf"
-)
-plot(BRA)
-
-# selecionando o estado de SP
-mapa_sp <- BRA[BRA$name_en == "São Paulo", ]
-plot(mapa_sp)
-
-# link bacana que encontrei ensinando: 
-# https://www.youtube.com/watch?v=iw168iDq42U&ab_channel=Prof.Fl%C3%A1vioMaximino
 
