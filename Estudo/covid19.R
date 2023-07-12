@@ -79,6 +79,7 @@ max(dataset_final_2020$total_casos_novos)
 
 ## graficos 
   cores <- rcartocolor::carto_pal(6, "SunsetDark")
+  cores2 <- rcartocolor::carto_pal(5, "SunsetDark")
  
 ## 2020
 ggplot()+
@@ -89,8 +90,8 @@ ggplot()+
                        name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())+
-  theme_void() #deixar fundo branco
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
 
 ## 2021
 
@@ -102,8 +103,8 @@ ggplot()+
                        name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())+
-  theme_void() #deixar fundo branco
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
 
 ## 2022
 
@@ -115,8 +116,8 @@ ggplot()+
                        name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())+
-  theme_void() #deixar fundo branco
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
 
 ## Mapa de calor dos casos acumulados até 31/12/2022
 
@@ -139,5 +140,99 @@ ggplot()+
                       name = "Total", labels = label_number(big.mark = ".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
-        axis.ticks = element_blank())+
-  theme_void()
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+
+## Dados taxa de contaminacao por ano por municipio
+
+### 2020
+soma_taxa_2020 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2020 & datahora <= data_final_2020) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sum(casos_novos/pop))
+
+dataset_final_taxa_2020 <- left_join(all_mun_sp, soma_taxa_2020, by = c("code_muni" = "codigo_ibge"))
+min(dataset_final_taxa_2020$total_casos_novos)
+max(dataset_final_taxa_2020$total_casos_novos)
+
+### 2021
+soma_taxa_2021 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2021 & datahora <= data_final_2021) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sum(casos_novos/pop))
+
+dataset_final_taxa_2021 <- left_join(all_mun_sp, soma_taxa_2021, by = c("code_muni" = "codigo_ibge"))
+min(dataset_final_taxa_2021$total_casos_novos)
+max(dataset_final_taxa_2021$total_casos_novos)
+
+### 2022
+soma_taxa_2022 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2022 & datahora <= data_final_2022) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sum(casos_novos/pop))
+
+dataset_final_taxa_2022 <- left_join(all_mun_sp, soma_taxa_2022, by = c("code_muni" = "codigo_ibge"))
+min(dataset_final_taxa_2022$total_casos_novos)
+max(dataset_final_taxa_2022$total_casos_novos)
+
+### Acumulado
+
+soma_taxa_acumulado <- dados_covid_sp %>% 
+  filter(datahora <= data_final_acumulado_2022) %>% 
+  group_by(nome_munic, codigo_ibge) %>% 
+  summarise(total_casos_novos = sum(casos_novos/pop))
+
+dataset_final_taxa_acumulado <- left_join(all_mun_sp, soma_taxa_acumulado, by = c("code_muni" = "codigo_ibge"))
+min(dataset_final_taxa_acumulado$total_casos_novos)
+max(dataset_final_taxa_acumulado$total_casos_novos)
+
+## Mapas de calor dos dados anteriores
+
+## 2020
+ggplot()+
+  geom_sf(data = dataset_final_taxa_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Taxa de contaminação de COVID-19 em 2020 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 0.40),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+## 2021
+ggplot()+
+  geom_sf(data = dataset_final_taxa_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Taxa de contaminção de COVID-19 em 2021 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 0.40),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+## 2022
+ggplot()+
+  geom_sf(data = dataset_final_taxa_2022, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Taxa de contaminação de COVID-19 em 2022 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 0.40),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+## Acumulado
+ggplot()+
+  geom_sf(data = dataset_final_taxa_acumulado, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Taxa de contaminação acumulada de COVID-19 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 0.50),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
