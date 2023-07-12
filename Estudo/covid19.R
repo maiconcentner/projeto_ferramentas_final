@@ -26,8 +26,6 @@ dados_ordem <- as.Date(dados_covid_sp$datahora)
 data_inicio_2020 <- as.Date("2020-02-25")
 data_final_2020 <-as.Date("2020-12-31") 
 
-dados_2020_filtrados <- subset(dados_covid_sp, datahora >= data_inicio_2020 & datahora <= data_final_2020)
-
 # Somando os casos de covid em 2020 por município
 
 soma_casos_2020 <- dados_covid_sp %>%
@@ -49,6 +47,56 @@ ggplot()+
   geom_sf(data = dataset_final_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
   labs(title = "Casos de COVID-19 em 2020 dos Municípios de SP",
        caption = "Fonte: Elaboração própria", size = 8)+
-  scale_fill_distiller(palette = "Reds", limits = c(1, 500000),
+  scale_fill_distiller(palette = "Set1", limits = c(1, 500000),
                        name="Total")+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+# Fazendo os mesmos passsos anteriores para os anos de 2021 e 2022
+
+data_inicio_2021 <- as.Date("2021-01-01")
+data_inicio_2022 <- as.Date("2022-01-01")
+
+data_final_2021 <- as.Date("2021-12-31")
+data_final_2022 <- as.Date("2022-12-31")
+
+soma_casos_2021 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2021 & datahora <= data_final_2021) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sum(casos_novos))
+
+soma_casos_2022 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2022 & datahora <= data_final_2022) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sum(casos_novos))
+
+dataset_final_2021 <- left_join(all_mun_sp, soma_casos_2021, by = c("code_muni" = "codigo_ibge"))
+min(dataset_final_2021$total_casos_novos)
+max(dataset_final_2021$total_casos_novos)
+
+dataset_final_2022 <- left_join(all_mun_sp, soma_casos_2022, by = c("code_muni" = "codigo_ibge"))
+min(dataset_final_2022$total_casos_novos)
+max(dataset_final_2022$total_casos_novos)
+
+ggplot()+
+  geom_sf(data = dataset_final_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Casos de COVID-19 em 2021 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_distiller(palette = "Set1", limits = c(0, 600000),
+                       name="Total")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+ggplot()+
+  geom_sf(data = dataset_final_2022, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Casos de COVID-19 em 2022 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_distiller(palette = "Set1", limits = c(0, 200000),
+                       name="Total")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+### Precisamos ajustar as legendas nos gráficos
