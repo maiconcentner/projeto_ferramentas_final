@@ -1,0 +1,160 @@
+---
+title: "O Pacote geobr"
+author: "Fernando Andrade"
+date: "2023-07-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# O Pacote ``geobr``
+
+Para começarmos o estudo do pacote ``geobr`` precisamos carregar os seguintes pacotes no R
+
+```{r}
+library(geobr)
+library(ggplot2)
+library(sf)
+library(dplyr)
+library(rio)
+library(readr)
+```
+
+A biblioteca ``geobr`` é uma biblioteca útil quando o assunto é construção de mapas, no caso, do Brasil, uma vez que fornece malhas digitais de divisões territoriais variadas. Podemos investigar os datasets disponíveis por meio da seguinte função:
+
+```{r}
+datasets <- list_geobr()
+```
+
+Veja que há 27 datasets disponíveis, entre eles, os mais relevantes ao estudo atual são ``read_state()`` , ``read_municipality()`` e ``read_region()``, que contém dados da geometria espacial dos estados do Brasil. Veja o seguinte exemplo simples:
+
+```{r}
+state <- read_state(
+  code_state = "AM",
+  year = 2018,
+  showProgress = TRUE
+)
+
+plot(state['name_state'], main = 'Amazonas') # plotamos a imagem do estado do Amazonas
+```
+
+Vale ressaltar que quando nenhum parâmetro é passado na função ``read_state()``, ele retorna o dataset por completo a partir de um ano, veja:
+
+```{r}
+states <- read_state()
+head(states)
+```
+Assim, é possível conferir o código do estado, da região e o nome da região. Além disso, alguns exemplos de plots que podemos fazer:
+
+```{r}
+# Remove plot axis
+no_axis <- theme(axis.title=element_blank(),
+                 axis.text=element_blank(),
+                 axis.ticks=element_blank())
+
+# Plot all Brazilian states
+ggplot() +
+  geom_sf(data=states, fill="#2D3E50", color="#FEBF57", size=.15, show.legend = FALSE) +
+  labs(title="Estados do Brasil", size=12) +
+  theme_minimal() +
+  no_axis
+```
+
+```{r}
+# Download all municipalities of Rio
+all_muni <- read_municipality(
+  code_muni = "RJ", 
+  year= 2010,
+  showProgress = FALSE
+  )
+
+# plot
+ggplot() +
+  geom_sf(data=all_muni, fill="#2D3E50", color="#FEBF57", size=.15, show.legend = FALSE) +
+  labs(title="Municípios do Rio de Janeiro, 2000", size=12) +
+  theme_minimal() +
+  no_axis
+```
+
+## Construindo um mapa o IDHM dos municípios de Mato Grosso do Sul
+
+Inicialmente, vamos fazer a leitura dos dados 
+
+```{r}
+library(readxl)
+atlas2013_dadosbrutos_pt <- read_excel("dados/Atlas_2013_municipal_estadual_Brasil.xlsx", 
+    sheet = "MUN 91-00-10")
+# reduzir linhas para 2010 e MS
+# usando a funcao subset para pegar as colunas de IDH até a última ()
+dados_ms <- subset(atlas2013_dadosbrutos_pt, UF == '50' & ANO == '2010',
+                   select=c(Codmun7,IDHM,IDHM_E,IDHM_L,IDHM_R))
+```
+
+
+```{r}
+library(geobr)
+# sugiro permanecer o timeout anterior, options(timeout= 4000000)
+all_mun_ms <- read_municipality(code_muni=50, year=2010)
+```
+Juntando os datasets pela condição de que o ``code_muni`` do objeto ``all_mun_ms`` é igual ao ``Codmun7`` do objeto ``dados_ms``
+
+```{r}
+dataset_final = left_join(all_mun_ms, dados_ms, by=c("code_muni"="Codmun7"))
+
+max(dataset_final$IDHM)
+min(dataset_final$IDHM)
+```
+
+Agora, conseguiremos plotar o gráfico do IDH municipal do estado de MS. Ademais, como vimos anteriormente, que o IDHM máximo é 0.784 e o mínimo, 0.526, vamos estabelecer os limites de $(0.5, 0.8)$ na escala do mapa: 
+
+```{r}
+ggplot() +
+  geom_sf(data=dataset_final, aes(fill=IDHM), color= NA, size=.15)+
+  labs(title="IDHM 2013 (ano base 2010) dos Municipíos de MS",
+       caption='Fonte: Elaboração própria', size=8)+
+  scale_fill_distiller(palette = "Greens", limits=c(0.5, 0.8),
+                       name="Code_muni")+
+  theme_minimal()
+```
+
+## Um mapa do IDHM Educacional de São Paulo
+
+Como já lemos a tabela bruta dos dados, podemos filtrar os resultados para o estado de São Paulo agora 
+```{r}
+dados_sp <- subset(atlas2013_dadosbrutos_pt, UF =='35' & ANO == '2010',
+                   select = c(Codmun7, IDHM, IDHM_E, IDHM_L, IDHM_R))
+print(dados_sp)
+```
+
+Agora, vamos selecionar a esturuta de 2010 para compatibilizar o mapa de SP a partir da biblioteca ``geobr``
+
+```{r}
+all_mun_sp <- read_municipality(code_muni = 35, year = 2010)
+
+# plot
+ggplot() +
+  geom_sf(data=all_mun_sp, fill="#2D3E50", color="#FEBF57", size=.15, show.legend = FALSE) +
+  labs(title="Municípios de São Paulo, 2010", size=12) +
+  theme_minimal() +
+  no_axis
+```
+Justando os dados pela condição de que o ``code_muni`` do objeto ``all_mun_sp`` é igual ao ``Codmun7`` do objeto ``dados_sp``
+
+```{r}
+dataset_final_sp = left_join(all_mun_sp, dados_sp, by = c("code_muni" = "Codmun7"))
+```
+
+Plotando o gráfico
+
+```{r}
+ggplot()+
+  geom_sf(data = dataset_final_sp, aes(fill = IDHM_E), color = NA, size = .15)+
+  labs(title = "IDHM Educação 2013 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_distiller(palette = "YlOrRd", limits = c(0.0, 1.0),
+                       name="IHDM_E")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
