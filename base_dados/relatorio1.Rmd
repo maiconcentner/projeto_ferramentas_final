@@ -1,0 +1,122 @@
+---
+title: "Análise Exploratória dos Impactos da COVID-19 no estado de São Paulo"
+author: "Maicon Centner, Fernando Andrade"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+    html_document:
+      highlight: textmate
+      includes:
+        in_header: "cabecalho.html"
+      theme: flatly
+      number_sections: no
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Carregando pacotes
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+library(rstatix)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(htmltools)
+cores <- rcartocolor::carto_pal(12, "Bold")
+```
+
+# 2. Carregando base de dados
+```{r}
+dados_covid_sp <- read.csv('D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados\\dados_covid_sp.csv', sep = ";")
+base_sp <- read.csv('D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados\\sp.csv', sep = ";")
+```
+
+# 3. Tratamento dos dados
+```{r}
+dados_covid_sp$datahora <- as.Date(dados_covid_sp$datahora,
+                                  format = '%Y-%m-%d') #convertendo datahora para data
+glimpse(dados_covid_sp)
+
+# excluindo colunas que não iremos usar
+dados_covid_sp_tratado <- select(dados_covid_sp, -c(2,6,9))
+
+# verificando valores vazios
+dados_covid_sp_tratado %>% 
+  sapply(function(x) sum(is.na(x))) # valores NA
+
+dados_covid_sp_tratado %>% 
+  sapply(function(x) sum(is.nan(x))) # valores NAN
+
+dados_covid_sp_tratado %>%
+  head(10) %>%
+  knitr::kable() %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover","condesed","responsive"))
+```
+
+# 4. Total de casos acumlados
+```{r}
+# Total de casos por ano/mes acumulado
+dados_covid_sp_tratado$ano_mes <- format(dados_covid_sp_tratado$datahora, "%Y-%m")
+
+casos_mes_ano <- dados_covid_sp_tratado %>% 
+  group_by(datahora) %>% 
+  summarise(total_casos = sum(casos))
+
+casos_mes_ano %>%
+  head(10) %>%
+  knitr::kable() %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover","condesed","responsive"))
+```
+
+# 5. Plot do gráfico do total de casos acumulados
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# plot do gráfico: total de casos acumulados
+casos_mes_ano %>% 
+  ggplot(aes(x = datahora, y = total_casos * 1e-6)) +
+  geom_density(fill = cores[8], stat = "identity", alpha = 0.3) +
+  scale_color_manual(values = cores) +
+  theme(panel.grid = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Ano",
+       y = expression(paste("Total de Casos (", 10^6, ")")),
+       title = "Evolução dos Casos no Estado de São Paulo") +
+  scale_y_continuous(labels = scales::comma, breaks = scales::pretty_breaks(5))
+```
+
+# 6. Total de novos casos por dia
+```{r}
+novos_casos_mes_ano <- dados_covid_sp_tratado %>% 
+  group_by(datahora) %>% 
+  summarise(novos_casos = sum(casos_novos))
+
+novos_casos_mes_ano %>%
+  head(10) %>%
+  knitr::kable() %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover","condesed","responsive"))
+```
+
+# 7. Plot do gráfico do total de novos casos por dia
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+novos_casos_mes_ano %>%
+  mutate(datahora = as.POSIXct(datahora)) %>%
+  ggplot(aes(x = datahora, y = novos_casos *1e-3)) +
+  geom_line(aes(color = "Média móvel"), show.legend = TRUE) +
+  geom_smooth(method = "loess", se = FALSE, color = "red", aes(color = "Curva de Suavização"), show.legend = TRUE) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Ano/Mês", y = "Novos Casos (x 10³)", title = "Novos Casos por Dia no Estado de São Paulo",
+       color = "Legenda") +
+  scale_x_datetime(date_labels = "%Y-%m", date_breaks = "6 month") +
+  scale_color_manual(values = c("blue", "red"))
+```
+
+# 8. Referências  
+[Boletim completo](https://www.seade.gov.br/coronavirus/)  
+[Repositório de dados](https://github.com/seade-R/dados-covid-sp)
+
