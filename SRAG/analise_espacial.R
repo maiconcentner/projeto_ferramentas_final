@@ -17,7 +17,7 @@ pacSPn::p_load(ggplot2, psych, descr, e1071, dplyr, tidyverse, geobr, raster,
 
 ## 2020
   ## base online, atualizada
-  BR20 <- fread("https://s3.sa-east-1.aSPzonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD20-29-08-2022.csv")
+  BR20 <- fread("https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD20-29-08-2022.csv")
 
   ## filtro para as variáveis de interesse da pesquisa
 
@@ -307,12 +307,12 @@ color(20)
 
 
 ggplot(juntos) + geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
-                         colour = "gray", size = 0.1)+                ## linha dos municípios
+                         colour = "gray", size = 0.1) +                ## linha dos municípios
   geom_sf(data = get_brmap("State", geo.filter = list(State = 35)), ## linha Estado
           fill = "transparent",
           colour = "black", size = 0.05)+
   scale_fill_gradientn(colours = color(20))+    #### escala de cor
-                            #### escala de tamanho
+  annotation_scale()+                           #### escala de tamanho
   annotation_north_arrow(location = 'tl', 
                          style = north_arrow_fancy_orienteering())+ ## seta direção
   labs(x=NULL, y=NULL, fill='[Letalidade\n Hospitalar - %]',        ## legenda
@@ -320,9 +320,6 @@ ggplot(juntos) + geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
        subtitle = "SEGUNDO MUNICÍPIO DE INTERNAÇÃO, MARANHÃO, 2020",
        caption = "Prof. Flávio Maximino")+
   theme_classic() + theme(legend.position = c(0.9,0.2))             ## tema e posição
-
-
-
 
 
 
