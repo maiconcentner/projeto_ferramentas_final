@@ -308,14 +308,19 @@ color(20)
 ### código padrão para mapa dos municípios
 
 
+<<<<<<< HEAD
+ggplot(juntos) + geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
+                         colour = "gray", size = 0.1) +                ## linha dos municípios
+=======
 ggplot(juntos)+ 
   geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
                          colour = "gray", size = 0.1)+                ## linha dos municípios
+>>>>>>> 79936335cc975781956941fb5546df1e7917b943
   geom_sf(data = get_brmap("State", geo.filter = list(State = 35)), ## linha Estado
           fill = "transparent",
           colour = "black", size = 0.05)+
   scale_fill_gradientn(colours = color(20))+    #### escala de cor
-                            #### escala de tamanho
+  annotation_scale()+                           #### escala de tamanho
   annotation_north_arrow(location = 'tl', 
                          style = north_arrow_fancy_orienteering())+ ## seta direção
   labs(x=NULL, y=NULL, fill='[Letalidade\n Hospitalar - %]',        ## legenda
@@ -331,9 +336,6 @@ ggplot(juntos)+
           fill = "transparent",
           colour = "black", size = 0.05)+
   scale_fill_gradient(palette = "YlOrRd", limits = c(0.0, 100.0))
-
-
-
 
 
 
