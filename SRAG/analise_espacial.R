@@ -67,7 +67,7 @@ View(SP20a22)
 ## arquivo excel com os dados da covid-19 para o SP
 
 
-write.table(SP20a22, file= "siveSP20a22.csv", sep=";", dec=",")
+write.table(SP20a22, file= "siveSP20a22.csv", sep=";", dec=",") ## não rodei 
 write.table(SP22, file= "siveSP22.csv", sep=";", dec=",")
 write.table(SP21, file= "siveSP21.csv", sep=";", dec=",")
 write.table(SP20, file= "siveSP20.csv", sep=";", dec=",")
@@ -76,7 +76,7 @@ write.table(SP20, file= "siveSP20.csv", sep=";", dec=",")
 ## análise descritiva, início para análise
 ## dados gerais para sive/gripe
 
-siveSP <- read.csv("siveSP20a22.csv", header = TRUE, sep = ";", dec = ",")
+siveSP <- read.csv("siveSP20a22.csv", header = TRUE, sep = ";", dec = ",") ## não rodei
 siveSP20 <- read.csv("siveSP20.csv", header = TRUE, sep = ";", dec = ",")
 siveSP21 <- read.csv("siveSP21.csv", header = TRUE, sep = ";", dec = ",")
 siveSP22 <- read.csv("siveSP22.csv", header = TRUE, sep = ";", dec = ",")
@@ -286,56 +286,67 @@ mapa22$code_muni <- as.double(mapa22$code_muni)
 
 
 
-juntos <- full_join(mapa_muni, mapa21, by="code_muni")  #função join, união de variáveis
+juntos2020 <- full_join(mapa_muni, mapa20, by="code_muni")  #função join, união de variáveis
+juntos2021 <- full_join(mapa_muni, mapa21, by="code_muni")  #função join, união de variáveis
+juntos2022 <- full_join(mapa_muni, mapa22, by="code_muni")  #função join, união de variáveis
 
 #retirando os NA, para municípios sem registros
 
-juntos[is.na(juntos)] <- 0
-View(juntos)
+juntos2020[is.na(juntos)] <- 0
+juntos2021[is.na(juntos)] <- 0
+juntos2022[is.na(juntos)] <- 0
 
-##teste com categoria, função cut,
 
-juntos$tx_mor_local21 <- cut(juntos$tx_mor_local21,breaks=c(-Inf, 1, 5, 10, 20, 30, 40, 50, 60,
+View(juntos2020)
+View(juntos2021)
+View(juntos2022)
+
+##teste com categoria, função cut,      ## PODEMOS IGNORAR O PROXIMO CÓDIGO
+
+juntos2020$tx_mor_local20 <- cut(juntos2020$tx_mor_local20,breaks=c(-Inf, 1, 5, 10, 20, 30, 40, 50, 60,
                                                      70, 80, 90, 95, 99, Inf), 
                       labels=c("0,00 a 0,9", "01,0 a 04,9", "05,0 a 09,9", "10,0 a 19,9","20,0 a 29,9","30,0 a 39,9",
                                "40,0 a 49,9","50,0 a 59,9", "60,0 a 69,9", "70,0 a 79,9",
                                "80,0 a 89,9", "90,0 a 94,9 ", "95,0 a 99,9", "100,00"))
 
 ## escala sem categoria, color
-color <- colorRampPalette(c("white", "yellow", "orange","red", "darkred", "black"))
-color(20)
+cores <- rcartocolor::carto_pal(6, "SunsetDark")
 
-### código padrão para mapa dos municípios
+## Mapa de calor para a taxa de mortalidade hospitalar nos anos de 
 
+### 2020
+ggplot()+ ## plotagem
+  geom_sf(data = juntos2020, aes(fill = tx_mor_local20), color = NA, size = 0.15)+ ## geometria dos municípios
+  labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2020",
+       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
+                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white")) ## configuração do tema 
 
-<<<<<<< HEAD
-ggplot(juntos) + geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
-                         colour = "gray", size = 0.1) +                ## linha dos municípios
-=======
-ggplot(juntos)+ 
-  geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
-                         colour = "gray", size = 0.1)+                ## linha dos municípios
->>>>>>> 79936335cc975781956941fb5546df1e7917b943
-  geom_sf(data = get_brmap("State", geo.filter = list(State = 35)), ## linha Estado
-          fill = "transparent",
-          colour = "black", size = 0.05)+
-  scale_fill_gradientn(colours = color(20))+    #### escala de cor
-  annotation_scale()+                           #### escala de tamanho
-  annotation_north_arrow(location = 'tl', 
-                         style = north_arrow_fancy_orienteering())+ ## seta direção
-  labs(x=NULL, y=NULL, fill='[Letalidade\n Hospitalar - %]',        ## legenda
-       title="TAXA DE MORTALIDADE HOSPITALAR POR SRAG POR COVID-19",
-       subtitle = "SEGUNDO MUNICÍPIO DE INTERNAÇÃO, MARANHÃO, 2020",
-       caption = "Prof. Flávio Maximino")+
-  theme_classic() + theme(legend.position = c(0.9,0.2))             ## tema e posição
+### 2021
+ggplot()+ ## plotagem
+  geom_sf(data = juntos2021, aes(fill = tx_mor_local21), color = NA, size = 0.15)+ ## geometria dos municípios
+  labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2021",
+       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
+                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white")) ## configuração do tema 
 
-ggplot(juntos)+
-  geom_sf(aes(fill=juntos$tx_mor_local21),
-          colour = "gray", size = 0.1)+
-  geom_sf(data = get_brmap("State", geo.filter = list(State = 35)),
-          fill = "transparent",
-          colour = "black", size = 0.05)+
-  scale_fill_gradient(palette = "YlOrRd", limits = c(0.0, 100.0))
-
-
+### 2022
+ggplot()+ ## plotagem
+  geom_sf(data = juntos2022, aes(fill = tx_mor_local22), color = NA, size = 0.15)+ ## geometria dos municípios
+  labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2022",
+       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
+                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white")) ## configuração do tema 
 
