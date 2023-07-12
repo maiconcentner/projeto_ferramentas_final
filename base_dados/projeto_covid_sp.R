@@ -6,14 +6,19 @@ library(ggplot2)
 
 cores <- rcartocolor::carto_pal(12, "Bold")
 # set da pasta de trabalho
+#<<<<<<< HEAD
+# setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
+# (fer) comentei a linha anterior linha para me facilitar na hora de rodar o script
+# =======
 
 #setwd("C:/Users/W10/aula do banana/trabalho/projeto_ferramentas_final/base_dados")
-setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\base_dados")
+#setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\base_dados")
+#>>>>>>> 249e7523d2f96a87f44753923ea0afd0f98f32bb
 
 # carregando base de dados
 
-dados_covid_sp <- read.csv('dados_covid_sp.csv', sep = ";")
-base_sp <- read.csv('sp.csv', sep = ";")
+dados_covid_sp <- read.csv('dados/dados_covid_sp.csv', sep = ";")
+base_sp <- read.csv('dados/sp.csv', sep = ";")
 
 # Tratamento da base de dados
 glimpse(dados_covid_sp)
@@ -83,11 +88,12 @@ novos_casos_mes_ano %>%
 
 
 # Criando um mapa de Calor
+
+devtools::install_github("AndySouth/rnaturalearthhires")
 library(tidyverse)
 library(rnaturalearth)
 library(rnaturalearthhires)
-
-devtools::install_github("AndySouth/rnaturalearthhires")
+library(sp)
 
 # baixando arquivos de mapa
 
@@ -103,3 +109,4 @@ plot(mapa_sp)
 
 # link bacana que encontrei ensinando: 
 # https://www.youtube.com/watch?v=iw168iDq42U&ab_channel=Prof.Fl%C3%A1vioMaximino
+

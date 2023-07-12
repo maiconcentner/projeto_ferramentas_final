@@ -1,6 +1,6 @@
-setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG")
+# setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG")
 
-#importação e instalação, caso seja a primeira vez no pc
+# importação e instalação, caso seja a primeira vez no pc
 remotes::install_github("rpradosiqueira/brazilmaps")
 
 library(dplyr)
@@ -32,7 +32,7 @@ pacSPn::p_load(ggplot2, psych, descr, e1071, dplyr, tidyverse, geobr, raster,
 
 #### 2021
   ## base online atualizada
-  BR21 <- fread("https://s3.sa-east-1.aSPzonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-29-08-2022.csv")
+  BR21 <- fread("https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-29-08-2022.csv")
 
   ## filtro para variáveis de interesse da pesquisa
   var.21 <- BR21[,c("DT_NOTIFIC", "SEM_NOT", "ID_MUNICIP", "CO_MUN_NOT", "SG_UF_NOT",
@@ -46,7 +46,7 @@ pacSPn::p_load(ggplot2, psych, descr, e1071, dplyr, tidyverse, geobr, raster,
   
 #### 2022         
   ## base excel e online, atualizada
-  BR22 <- fread("https://s3.sa-east-1.aSPzonaws.com/ckan.saude.gov.br/SRAG/2022/INFLUD22-28-11-2022.csv")
+  BR22 <- fread("https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2022/INFLUD22-29-08-2022.csv")
   
   
   ## filtro para variáveis de interesse da pesquisa
@@ -210,7 +210,7 @@ t3 <- as.data.frame(table(obitosSP22$CO_MUN_NOT))
 ## base de dados dos municipios de SP
 library(readxl)
 
-codigos <- read_excel("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG\\RELATORIO_DTB_BRASIL_MUNICIPIO.xls")
+codigos <- read_excel("RELATORIO_DTB_BRASIL_MUNICIPIO.xls")
 
 ## uniao das bases de acordo com as chaves do municipio
 
@@ -281,10 +281,12 @@ ggplot(mapa_muni)+geom_sf(aes(fill=code_muni)) #padrão azul teste, teste
 #### interpolação de dados, ano de 2020:
 
 mapa20$code_muni <- as.double(mapa20$code_muni)
+mapa21$code_muni <- as.double(mapa21$code_muni)
+mapa22$code_muni <- as.double(mapa22$code_muni)
 
 
 
-juntos <- full_join(mapa_muni, mapa20, by="code_muni")  #função join, união de variáveis
+juntos <- full_join(mapa_muni, mapa21, by="code_muni")  #função join, união de variáveis
 
 #retirando os NA, para municípios sem registros
 
@@ -293,7 +295,7 @@ View(juntos)
 
 ##teste com categoria, função cut,
 
-juntos$tx_mor_local20 <- cut(juntos$tx_mor_local20,breaks=c(-Inf, 1, 5, 10, 20, 30, 40, 50, 60,
+juntos$tx_mor_local21 <- cut(juntos$tx_mor_local21,breaks=c(-Inf, 1, 5, 10, 20, 30, 40, 50, 60,
                                                      70, 80, 90, 95, 99, Inf), 
                       labels=c("0,00 a 0,9", "01,0 a 04,9", "05,0 a 09,9", "10,0 a 19,9","20,0 a 29,9","30,0 a 39,9",
                                "40,0 a 49,9","50,0 a 59,9", "60,0 a 69,9", "70,0 a 79,9",
@@ -306,8 +308,14 @@ color(20)
 ### código padrão para mapa dos municípios
 
 
+<<<<<<< HEAD
 ggplot(juntos) + geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
                          colour = "gray", size = 0.1) +                ## linha dos municípios
+=======
+ggplot(juntos)+ 
+  geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
+                         colour = "gray", size = 0.1)+                ## linha dos municípios
+>>>>>>> 79936335cc975781956941fb5546df1e7917b943
   geom_sf(data = get_brmap("State", geo.filter = list(State = 35)), ## linha Estado
           fill = "transparent",
           colour = "black", size = 0.05)+
@@ -321,7 +329,13 @@ ggplot(juntos) + geom_sf(aes(fill=juntos$tx_mor_local20),           ## plotagem
        caption = "Prof. Flávio Maximino")+
   theme_classic() + theme(legend.position = c(0.9,0.2))             ## tema e posição
 
-
+ggplot(juntos)+
+  geom_sf(aes(fill=juntos$tx_mor_local21),
+          colour = "gray", size = 0.1)+
+  geom_sf(data = get_brmap("State", geo.filter = list(State = 35)),
+          fill = "transparent",
+          colour = "black", size = 0.05)+
+  scale_fill_gradient(palette = "YlOrRd", limits = c(0.0, 100.0))
 
 
 
