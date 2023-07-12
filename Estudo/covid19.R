@@ -79,14 +79,15 @@ max(dataset_final_2020$total_casos_novos)
 
 ## graficos 
   cores <- rcartocolor::carto_pal(6, "SunsetDark")
-
+  library(scales)
+  
 ## 2020
 ggplot()+
   geom_sf(data = dataset_final_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
   labs(title = "Casos de COVID-19 em 2020 dos Municípios de SP",
        caption = "Fonte: Elaboração própria", size = 8)+
   scale_fill_gradientn(colours = cores, limits = c(1, 600000),
-                       name="Total")+
+                       name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.ticks = element_blank())
@@ -98,7 +99,7 @@ ggplot()+
   labs(title = "Casos de COVID-19 em 2021 dos Municípios de SP",
        caption = "Fonte: Elaboração própria", size = 8)+
   scale_fill_gradientn(colours = cores, limits = c(0, 600000),
-                       name="Total")+
+                       name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.ticks = element_blank())
@@ -110,7 +111,7 @@ ggplot()+
   labs(title = "Casos de COVID-19 em 2022 dos Municípios de SP",
        caption = "Fonte: Elaboração própria", size = 8)+
   scale_fill_gradientn(colours = cores, limits = c(0, 600000),
-                       name="Total")+
+                       name="Total", labels = label_number(big.mark=".", accuracy = 1))+
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.ticks = element_blank())
