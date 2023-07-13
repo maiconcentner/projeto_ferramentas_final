@@ -1,12 +1,17 @@
-# setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG")
+setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG")
 
 # importação e instalação, caso seja a primeira vez no pc
 remotes::install_github("rpradosiqueira/brazilmaps")
 
 library(dplyr)
-library(writexl)
-library(descr)
 library(rstatix)
+library(ggplot2)
+library(geobr)
+library(sf)
+library(dplyr)
+library(rio)
+library(readr)
+library(scales)
 if(!require(pacSPn)){install.packages("pacSPn")}
 pacSPn::p_load(ggplot2, psych, descr, e1071, dplyr, tidyverse, geobr, raster,
                ggspatial, fields, sf, brazilSPps, readxl, SPSS, knitr,
@@ -67,7 +72,7 @@ View(SP20a22)
 ## arquivo excel com os dados da covid-19 para o SP
 
 
-write.table(SP20a22, file= "siveSP20a22.csv", sep=";", dec=",") ## não rodei 
+#write.table(SP20a22, file= "siveSP20a22.csv", sep=";", dec=",") ## não rodei 
 write.table(SP22, file= "siveSP22.csv", sep=";", dec=",")
 write.table(SP21, file= "siveSP21.csv", sep=";", dec=",")
 write.table(SP20, file= "siveSP20.csv", sep=";", dec=",")
@@ -76,10 +81,10 @@ write.table(SP20, file= "siveSP20.csv", sep=";", dec=",")
 ## análise descritiva, início para análise
 ## dados gerais para sive/gripe
 
-siveSP <- read.csv("siveSP20a22.csv", header = TRUE, sep = ";", dec = ",") ## não rodei
-siveSP20 <- read.csv("siveSP20.csv", header = TRUE, sep = ";", dec = ",")
-siveSP21 <- read.csv("siveSP21.csv", header = TRUE, sep = ";", dec = ",")
-siveSP22 <- read.csv("siveSP22.csv", header = TRUE, sep = ";", dec = ",")
+
+siveSP20 <- read.csv("sivepSP20.csv", header = TRUE, sep = ";", dec = ",")
+siveSP21 <- read.csv("sivepSP21.csv", header = TRUE, sep = ";", dec = ",")
+siveSP22 <- read.csv("sivepSP22.csv", header = TRUE, sep = ";", dec = ",")
   
 
 ### filtro para notificacoes do total dos pacientes de SP
@@ -257,17 +262,6 @@ mapa21$tx_mor_local21 <- (mapa21$Freq/total_hosp_21)*100
 mapa22$tx_mor_local22 <- (mapa22$Freq/total_hosp_22)*100
 
 
-#### ESTOU COM DÚVIDAS
-## b)	proporção de mortalidade hospitalar  por município de residência
-muni_res_20 <- as.data.frame(table(hospSP20$ID_MN_RESI))
-muni_res_21 <- as.data.frame(table(hospSP21$ID_MN_RESI))
-muni_res_22 <- as.data.frame(table(hospSP22$ID_MN_RESI))
-
-mapa20$tx_mor_res_20 <- (mapa20$Freq/muni_res_20$Freq)*100
-mapa21$tx_mor_res_21 <- (mapa21$Freq/muni_res_21$Freq)*100
-mapa22$tx_mor_res_22 <- (mapa22$Freq/muni_res_22$Freq)*100
-
-
 ##### dados do território, plotagem do mapa
 
 ## filtro para apenas um estado, modificar pelo código número code_state
@@ -276,7 +270,7 @@ mapa22$tx_mor_res_22 <- (mapa22$Freq/muni_res_22$Freq)*100
 mapa_muni <- read_municipality(code_muni = "all", year=2010) %>% 
   filter(code_state == 35)   
 
-ggplot(mapa_muni)+geom_sf(aes(fill=code_muni)) #padrão azul teste, teste
+#ggplot(mapa_muni)+geom_sf(aes(fill=code_muni)) #padrão azul teste, teste
 
 #### interpolação de dados, ano de 2020:
 
@@ -292,22 +286,18 @@ juntos2022 <- full_join(mapa_muni, mapa22, by="code_muni")  #função join, uni�
 
 #retirando os NA, para municípios sem registros
 
-juntos2020[is.na(juntos)] <- 0
-juntos2021[is.na(juntos)] <- 0
-juntos2022[is.na(juntos)] <- 0
+juntos2020[is.na(juntos2020)] <- 0
+juntos2021[is.na(juntos2021)] <- 0
+juntos2022[is.na(juntos2022)] <- 0
 
-
-View(juntos2020)
-View(juntos2021)
-View(juntos2022)
 
 ##teste com categoria, função cut,      ## PODEMOS IGNORAR O PROXIMO CÓDIGO
 
-juntos2020$tx_mor_local20 <- cut(juntos2020$tx_mor_local20,breaks=c(-Inf, 1, 5, 10, 20, 30, 40, 50, 60,
-                                                     70, 80, 90, 95, 99, Inf), 
-                      labels=c("0,00 a 0,9", "01,0 a 04,9", "05,0 a 09,9", "10,0 a 19,9","20,0 a 29,9","30,0 a 39,9",
-                               "40,0 a 49,9","50,0 a 59,9", "60,0 a 69,9", "70,0 a 79,9",
-                               "80,0 a 89,9", "90,0 a 94,9 ", "95,0 a 99,9", "100,00"))
+# juntos2020$tx_mor_local20 <- cut(juntos2020$tx_mor_local20,breaks=c(-Inf, 1, 5, 10, 20, 30, 40, 50, 60,
+                    #                                 70, 80, 90, 95, 99, Inf), 
+                     # labels=c("0,00 a 0,9", "01,0 a 04,9", "05,0 a 09,9", "10,0 a 19,9","20,0 a 29,9","30,0 a 39,9",
+                     #          "40,0 a 49,9","50,0 a 59,9", "60,0 a 69,9", "70,0 a 79,9",
+                      #         "80,0 a 89,9", "90,0 a 94,9 ", "95,0 a 99,9", "100,00"))
 
 ## escala sem categoria, color
 cores <- rcartocolor::carto_pal(6, "SunsetDark")
@@ -317,34 +307,38 @@ cores <- rcartocolor::carto_pal(6, "SunsetDark")
 ### 2020
 ggplot()+ ## plotagem
   geom_sf(data = juntos2020, aes(fill = tx_mor_local20), color = NA, size = 0.15)+ ## geometria dos municípios
+  geom_sf(data = juntos2020, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
   labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2020",
        caption = "Fonte: Elaboração própria")+ ## titulo e legenda
-  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
-                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 11.00),
+                       name="Taxa mortalidade (%)", labels = label_number(big.mark="."))+ ## cores
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white")) ## configuração do tema 
 
 ### 2021
-ggplot()+ ## plotagem
-  geom_sf(data = juntos2021, aes(fill = tx_mor_local21), color = NA, size = 0.15)+ ## geometria dos municípios
+ggplot() +
+  geom_sf(data = juntos2021, aes(fill = tx_mor_local21), color = NA, size = 0.15) +
+  geom_sf(data = juntos2021, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
   labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2021",
-       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
-  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
-                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+       caption = "Fonte: Elaboração própria") +
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 8.00),
+                       name = "Taxa mortalidade (%)", labels = label_number(big.mark = ".")) +
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        panel.background = element_rect(fill = "white")) ## configuração do tema 
+        panel.background = element_rect(fill = "white"))
+
 
 ### 2022
 ggplot()+ ## plotagem
   geom_sf(data = juntos2022, aes(fill = tx_mor_local22), color = NA, size = 0.15)+ ## geometria dos municípios
+  geom_sf(data = juntos2022, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
   labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2022",
        caption = "Fonte: Elaboração própria")+ ## titulo e legenda
-  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
-                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 8.00),
+                       name="Taxa mortalidade (%)", labels = label_number(big.mark="."))+ ## cores
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.ticks = element_blank(),

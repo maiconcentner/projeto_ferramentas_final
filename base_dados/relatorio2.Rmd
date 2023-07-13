@@ -1,5 +1,26 @@
-# Carregando pacotes necessários
+---
+title: "Análise espacial dos dados de COVID-19 no estado de São Paulo"
+author: "Maicon Centner, Fernando Andrade"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+    html_document:
+      highlight: textmate
+      includes:
+        in_header: "cabecalho.html"
+      theme: flatly
+      number_sections: no
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Carregando pacotes
+```{r, warning=FALSE, message=FALSE}
 library(dplyr)
 library(rstatix)
 library(ggplot2)
@@ -10,12 +31,16 @@ library(rio)
 library(readr)
 library(scales)
 cores <- rcartocolor::carto_pal(6, "SunsetDark")
+```
 
+# 2. Carregando base de dados
+```{r, warning=FALSE, message=FALSE}
+dados_covid_sp <- read.csv("dados_covid_sp.csv", sep = ";")
 
-# carregando base de dados
+```
 
-dados_covid_sp <- read.csv('dados/dados_covid_sp.csv', sep = ";")
-
+# 3. Tratamento da base de dados
+```{r}
 # ordenando os dados por ordem alfabética de município
 
 dados_ordem <- dados_covid_sp[order(dados_covid_sp$nome_munic), ]
@@ -24,6 +49,10 @@ dados_ordem <- dados_covid_sp[order(dados_covid_sp$nome_munic), ]
 
 dados_ordem <- as.Date(dados_covid_sp$datahora)
 
+```
+
+# 4. Definindo intervalo de cada ano
+```{r}
 # Definindo as datas de inicío e fim do intervalo anual para 
 ## 2020
 data_inicio_2020 <- as.Date("2020-02-25")
@@ -36,9 +65,10 @@ data_final_2021 <- as.Date("2021-12-31")
 ## 2022
 data_inicio_2022 <- as.Date("2022-01-01")
 data_final_2022 <- as.Date("2022-12-31")
+```
 
-
-# Somando os casos de covid por município
+# 5. Soma dos casos de covid por município
+```{r, warning=FALSE, message=FALSE}
 ## 2020
 soma_casos_2020 <- dados_covid_sp %>%
   filter(datahora >= data_inicio_2020 & datahora <= data_final_2020) %>%
@@ -57,13 +87,15 @@ soma_casos_2022 <- dados_covid_sp %>%
   filter(datahora >= data_inicio_2022 & datahora <= data_final_2022) %>%
   group_by(nome_munic, codigo_ibge) %>%
   summarise(total_casos_novos = sum(casos_novos))
+```
 
-
-# Carregando o mapa dos municípios de São Paulo por meio da bilbioteca geobr
-
+# 6. Carregando mapa do estado de São Paulo
+```{r, results='hide',warning=FALSE, message=FALSE}
 all_mun_sp <- read_municipality(code_muni = 35, year = 2010)
+```
 
-# juntando as tabelas, obtendo um dataset final para plotar o gráfico
+# 7. Join das bases e mapa para plotagem dos gráficos
+```{r, warning=FALSE, message=FALSE}
 ## 2020
 dataset_final_2020 <- left_join(all_mun_sp, soma_casos_2020, by = c("code_muni" = "codigo_ibge"))
 min(dataset_final_2020$total_casos_novos)
@@ -78,11 +110,11 @@ max(dataset_final_2021$total_casos_novos)
 dataset_final_2022 <- left_join(all_mun_sp, soma_casos_2022, by = c("code_muni" = "codigo_ibge"))
 min(dataset_final_2022$total_casos_novos)
 max(dataset_final_2022$total_casos_novos)
+```
 
-
-
-# Plotagem dos graficos 
-## 2020
+# 8. Plotagem dos gráficos
+## 8.1 Total de casos em 2020
+```{r, fig.align='center',warning=FALSE, message=FALSE}
 ggplot()+
   geom_sf(data = dataset_final_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_2020, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -94,8 +126,10 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-## 2021
+## 8.2 Total de casos em 2021
+```{r, fig.align='center',warning=FALSE, message=FALSE}
 ggplot()+
   geom_sf(data = dataset_final_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_2021, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -107,9 +141,10 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-## 2022
-
+## 8.3 Total de casos em 2022
+```{r, fig.align='center',warning=FALSE, message=FALSE}
 ggplot()+
   geom_sf(data = dataset_final_2022, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_2022, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -121,11 +156,10 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-# Analise do acumulado dos anos 2020, 2021 e 2022
-
-## Mapa de calor dos casos acumulados até 31/12/2022
-
+# 9. Total acumulado no período
+```{r, warning=FALSE, message=FALSE}
 data_final_acumulado_2022 <- as.Date("2022-12-31")
 
 casos_acumulados <- dados_covid_sp %>%
@@ -136,7 +170,10 @@ casos_acumulados <- dados_covid_sp %>%
 dataset_final_acumulado <- left_join(all_mun_sp, casos_acumulados, by = c("code_muni" = "codigo_ibge"))
 min(dataset_final_acumulado$total_acumulado)
 max(dataset_final_acumulado$total_acumulado)
+```
 
+## 9.1 Plot do gráfico
+```{r, fig.align='center',warning=FALSE, message=FALSE}
 ggplot()+
   geom_sf(data = dataset_final_acumulado, aes(fill = total_acumulado), color = NA, size = 0.15)+
   geom_sf(data = dataset_final_acumulado, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -148,11 +185,11 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-
-## Análise de dados da taxa de contaminacao por ano por municipio
-
-### 2020
+# 10. Análise da taxa de contaminação
+```{r, warning=FALSE, message=FALSE}
+# 2020
 soma_taxa_2020 <- dados_covid_sp %>%
   filter(datahora >= data_inicio_2020 & datahora <= data_final_2020) %>%
   group_by(nome_munic, codigo_ibge) %>%
@@ -162,7 +199,7 @@ dataset_final_taxa_2020 <- left_join(all_mun_sp, soma_taxa_2020, by = c("code_mu
 min(dataset_final_taxa_2020$total_casos_novos)
 max(dataset_final_taxa_2020$total_casos_novos)
 
-### 2021
+# 2021
 soma_taxa_2021 <- dados_covid_sp %>%
   filter(datahora >= data_inicio_2021 & datahora <= data_final_2021) %>%
   group_by(nome_munic, codigo_ibge) %>%
@@ -172,7 +209,7 @@ dataset_final_taxa_2021 <- left_join(all_mun_sp, soma_taxa_2021, by = c("code_mu
 min(dataset_final_taxa_2021$total_casos_novos)
 max(dataset_final_taxa_2021$total_casos_novos)
 
-### 2022
+# 2022
 soma_taxa_2022 <- dados_covid_sp %>%
   filter(datahora >= data_inicio_2022 & datahora <= data_final_2022) %>%
   group_by(nome_munic, codigo_ibge) %>%
@@ -182,8 +219,7 @@ dataset_final_taxa_2022 <- left_join(all_mun_sp, soma_taxa_2022, by = c("code_mu
 min(dataset_final_taxa_2022$total_casos_novos)
 max(dataset_final_taxa_2022$total_casos_novos)
 
-### Acumulado
-
+# Acumulado
 soma_taxa_acumulado <- dados_covid_sp %>% 
   filter(datahora <= data_final_acumulado_2022) %>% 
   group_by(nome_munic, codigo_ibge) %>% 
@@ -193,9 +229,12 @@ dataset_final_taxa_acumulado <- left_join(all_mun_sp, soma_taxa_acumulado, by = 
 min(dataset_final_taxa_acumulado$total_casos_novos)
 max(dataset_final_taxa_acumulado$total_casos_novos)
 
-## Mapas de calor dos dados anteriores
+```
 
-## 2020
+## 10.1 Plot dos gráficos
+### 10.1.1 Taxa de contaminação 2020
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# 2020
 ggplot()+
   geom_sf(data = dataset_final_taxa_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_taxa_2020, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -207,8 +246,11 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-## 2021
+### 10.1.2 Taxa de contaminação 2021
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# 2021
 ggplot()+
   geom_sf(data = dataset_final_taxa_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_taxa_2021, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -220,8 +262,11 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-## 2022
+### 10.1.3 Taxa de contaminação 2022
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# 2022
 ggplot()+
   geom_sf(data = dataset_final_taxa_2022, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_taxa_2022, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -233,8 +278,10 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
 
-## Acumulado
+### 10.1.4 Taxa de contaminação 2020 a 2022
+```{r, fig.align='center',warning=FALSE, message=FALSE}
 ggplot()+
   geom_sf(data = dataset_final_taxa_acumulado, aes(fill = total_casos_novos), color = NA, size = .15)+
   geom_sf(data = dataset_final_taxa_acumulado, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
@@ -246,3 +293,26 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
