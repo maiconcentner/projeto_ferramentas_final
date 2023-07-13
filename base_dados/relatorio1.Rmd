@@ -58,7 +58,7 @@ dados_covid_sp_tratado %>%
   kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover","condesed","responsive"))
 ```
 
-# 4. Total de casos acumlados
+# 4. Total de casos acumulados
 ```{r}
 # Total de casos por ano/mes acumulado
 dados_covid_sp_tratado$ano_mes <- format(dados_covid_sp_tratado$datahora, "%Y-%m")
