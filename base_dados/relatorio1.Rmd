@@ -6,7 +6,7 @@ output:
     html_document:
       highlight: textmate
       includes:
-        in_header: 
+        in_header: "cabecalho.html"
       theme: flatly
       number_sections: no
       toc: yes
@@ -24,16 +24,23 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(rstatix)
 library(ggplot2)
+library(geobr)
 library(knitr)
 library(kableExtra)
 library(htmltools)
+library(scales)
+library(readr)
+library(rio)
+library(sf)
+library(readxl)
 cores <- rcartocolor::carto_pal(12, "Bold")
+cores2 <- rcartocolor::carto_pal(6, "SunsetDark")
 ```
 
 # 2. Carregando base de dados
 ```{r}
-dados_covid_sp <- read.csv('dados/dados_covid_sp.csv', sep = ";")
-base_sp <- read.csv('dados/sp.csv', sep = ";")
+dados_covid_sp <- read.csv('D:/Mestrado/1Sem_23/Ferramentas computacionais/projeto_final/Estudo/dados/dados_covid_sp.csv', sep = ";")
+base_sp <- read.csv('D:/Mestrado/1Sem_23/Ferramentas computacionais/projeto_final/Estudo/dados/sp.csv', sep = ";")
 ```
 
 # 3. Tratamento dos dados
@@ -116,7 +123,339 @@ novos_casos_mes_ano %>%
   scale_color_manual(values = c("blue", "red"))
 ```
 
-# 8. Referências  
+# 8. Análise SRAG Covid-19
+## 8.1 Carregando Pacotes
+```{r, warning=FALSE, message=FALSE}
+# importação e instalação, caso seja a primeira vez no pc
+remotes::install_github("rpradosiqueira/brazilmaps")
+
+library(dplyr)
+library(rstatix)
+library(ggplot2)
+library(geobr)
+library(sf)
+library(dplyr)
+library(rio)
+library(readr)
+library(scales)
+library(data.table)
+```
+
+## 8.2 Carregando base de dados da Sivep-Gripe
+```{r,results='hide', message=FALSE, warning=FALSE}
+#base online, atualizada
+# 2020
+BR20 <- fread("https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD20-29-08-2022.csv")
+
+# 2021
+BR21 <- fread("https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-29-08-2022.csv")
+
+# 2022
+BR22 <- fread("https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2022/INFLUD22-29-08-2022.csv")
+```
+
+## 8.3 Tratamento da base de dados
+```{r, warning=FALSE, message=FALSE}
+## 2020
+# filtro para as variáveis de interesse da pesquisa
+
+var.20 <- BR20[,c("DT_NOTIFIC", "SEM_NOT", "ID_MUNICIP", "CO_MUN_NOT", "SG_UF_NOT", 
+                  "ID_REGIONA", "ID_UNIDADE", "NU_IDADE_N", "CS_SEXO", "CS_RACA",
+                  "ID_MN_RESI", "CO_MUN_RES", "CS_ZONA", "HOSPITAL", "EVOLUCAO",
+                  "FATOR_RISC", "UTI", "SUPORT_VEN", "CLASSI_FIN")]
+# filtro para as notificações do estado de São Paulo
+SP20 <- filter(var.20, SG_UF_NOT == 'SP')
+
+## 2021
+# filtro para variáveis de interesse da pesquisa
+var.21 <- BR21[,c("DT_NOTIFIC", "SEM_NOT", "ID_MUNICIP", "CO_MUN_NOT", "SG_UF_NOT",
+                    "ID_REGIONA", "ID_UNIDADE", "NU_IDADE_N", "CS_SEXO", "CS_RACA", 
+                    "ID_MN_RESI", "CO_MUN_RES", "CS_ZONA", "HOSPITAL", "EVOLUCAO",
+                    "FATOR_RISC", "UTI", "SUPORT_VEN", "CLASSI_FIN")]
+# filtro para as notificações do estado de São Paulo
+SP21 <- filter(var.21, SG_UF_NOT == 'SP')
+
+## 2022
+# filtro para variáveis de interesse da pesquisa
+var.22 <- BR22[,c("DT_NOTIFIC", "SEM_NOT", "ID_MUNICIP", "CO_MUN_NOT", "SG_UF_NOT",
+                    "ID_REGIONA", "ID_UNIDADE", "NU_IDADE_N", "CS_SEXO", "CS_RACA",
+                    "ID_MN_RESI", "CO_MUN_RES", "CS_ZONA", "HOSPITAL", "EVOLUCAO",
+                    "FATOR_RISC", "UTI", "SUPORT_VEN", "CLASSI_FIN")]
+# filtro para as notificações do estado de São Paulo
+SP22 <- filter(var.22, SG_UF_NOT == 'SP')
+```
+
+## 8.4 Criando um Backup local dos dados
+```{r, warning=FALSE, message=FALSE}
+## arquivo excel com os dados da covid-19 para o SP
+write.table(SP22, file= "siveSP22.csv", sep=";", dec=",")
+write.table(SP21, file= "siveSP21.csv", sep=";", dec=",")
+write.table(SP20, file= "siveSP20.csv", sep=";", dec=",")
+```
+
+# 9. Análise descritiva, início para análise
+## 9.1 Carregando base de dados local
+```{r,results='hide', warning=FALSE, message=FALSE}
+# dados gerais para sivesp/gripe
+siveSP20 <- read.csv("siveSP20.csv", header = TRUE, sep = ";", dec = ",")
+siveSP21 <- read.csv("siveSP21.csv", header = TRUE, sep = ";", dec = ",")
+siveSP22 <- read.csv("siveSP22.csv", header = TRUE, sep = ";", dec = ",")
+```
+
+## 9.2 Total de pessoas por sexo
+### 9.2.1 2020
+```{r, warning=FALSE, message=FALSE}
+table(siveSP20$CS_SEXO)
+```
+### 9.2.2 2021
+```{r, warning=FALSE, message=FALSE}
+table(siveSP21$CS_SEXO)
+```
+### 9.2.3 2022
+```{r, warning=FALSE, message=FALSE}
+table(siveSP22$CS_SEXO)
+```
+
+## 9.3 Análise das idades
+### 9.3.1 Média 2020
+```{r, warning=FALSE, message=FALSE}
+mean(siveSP20$NU_IDADE_N)
+```
+### 9.3.2 Média 2021
+```{r, warning=FALSE, message=FALSE}
+mean(siveSP21$NU_IDADE_N)
+```
+### 9.3.3 Média 2022
+```{r, warning=FALSE, message=FALSE}
+mean(siveSP22$NU_IDADE_N)
+```
+
+### 9.3.4 Mediana 2020
+```{r, warning=FALSE, message=FALSE}
+median(siveSP20$NU_IDADE_N)
+```
+### 9.3.5 Mediana 2021
+```{r, warning=FALSE, message=FALSE}
+median(siveSP21$NU_IDADE_N)
+```
+### 9.3.6 Mediana 2022
+```{r, warning=FALSE, message=FALSE}
+median(siveSP22$NU_IDADE_N)
+```
+
+### 9.3.7 Boxplot 2020
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+boxplot(siveSP20$NU_IDADE_N)
+```
+### 9.3.8 Boxplot 2021
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+boxplot(siveSP21$NU_IDADE_N)
+```
+### 9.3.9 Boxplot 2022
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+boxplot(siveSP22$NU_IDADE_N)
+```
+
+
+## 9.4 Tratamento dos outliers
+### 9.4.1 Verificando 2020
+```{r, warning=FALSE, message=FALSE}
+siveSP20 %>% 
+  identify_outliers(NU_IDADE_N)
+```
+
+### 9.4.2 Verificando 2021
+```{r, warning=FALSE, message=FALSE}
+siveSP21 %>% 
+  identify_outliers(NU_IDADE_N)
+```
+
+### 9.4.3 Verificando 2022
+```{r, warning=FALSE, message=FALSE}
+siveSP22 %>% 
+  identify_outliers(NU_IDADE_N)
+```
+
+### 9.4.4 Retirando outliers
+```{r, warning=FALSE, message=FALSE}
+## tratando outliers
+outliers20 <- c(boxplot.stats(siveSP20$NU_IDADE_N)$out)
+outliers21 <- c(boxplot.stats(siveSP21$NU_IDADE_N)$out)
+  
+## atualizando as tabelas sem os outliers
+siveSP20 <- siveSP20[-c(which(siveSP20$NU_IDADE_N %in% outliers20)),]
+siveSP21 <- siveSP21[-c(which(siveSP21$NU_IDADE_N %in% outliers21)),]
+```
+
+### 9.4.5 Novo boxplot 2020
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+siveSP20$NU_IDADE_N %>% boxplot()
+```
+
+### 9.4.6 Novo boxplot 2021
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+siveSP21$NU_IDADE_N %>% boxplot()
+```
+
+## 9.5 Filtrando notificações de Covid-19
+### 9.5.1 Tratamento dos dados
+```{r, warning=FALSE, message=FALSE}
+## filtro para notificaÇões para covid-19
+
+covidSP20 <- filter(siveSP20, CLASSI_FIN =='5')
+covidSP21 <- filter(siveSP21, CLASSI_FIN =='5')
+covidSP22 <- filter(siveSP22, CLASSI_FIN =='5')
+
+## filtro para obitos totais de covid, evolucao = 2
+
+obitoSP20 <- filter(covidSP20, EVOLUCAO == '2')
+obitoSP21 <- filter(covidSP21, EVOLUCAO == '2')
+obitoSP22 <- filter(covidSP22, EVOLUCAO == '2')
+
+## filto para internação de covid, hospital = 1
+
+hospSP20 <- filter(covidSP20, HOSPITAL == '1')
+hospSP21 <- filter(covidSP21, HOSPITAL == '1')
+hospSP22 <- filter(covidSP22, HOSPITAL == '1')
+
+## filtro para letalidade, óbitos em hospitalizaçao, evolucao = 2
+
+obitosSP20 <- filter(hospSP20, EVOLUCAO == '2')
+obitosSP21 <- filter(hospSP21, EVOLUCAO == '2')
+obitosSP22 <- filter(hospSP22, EVOLUCAO == '2')
+```
+
+### 9.5.2 Filtro de casos totais por município
+```{r, warning=FALSE, message=FALSE}
+t1 <- as.data.frame(table(obitosSP20$CO_MUN_NOT)) # 2020
+t2 <- as.data.frame(table(obitosSP21$CO_MUN_NOT)) # 2021
+t3 <- as.data.frame(table(obitosSP22$CO_MUN_NOT)) # 2022
+```
+
+### 9.5.3 Carregando códigos dos munícpios IBGE
+```{r, warning=FALSE, message=FALSE}
+codigos <- read_excel("D:/Mestrado/1Sem_23/Ferramentas computacionais/projeto_final/SRAG/RELATORIO_DTB_BRASIL_MUNICIPIO.xls")
+```
+
+### 9.5.4 União das bases "t" com codigos
+```{r, warning=FALSE, message=FALSE}
+## uniao das bases de acordo com as chaves do municipio
+j1 <- merge(codigos, t1, by.x = "ibge6", by.y = "Var1", all.x = TRUE) # 2020
+j2 <- merge(codigos, t2, by.x = "ibge6", by.y = "Var1", all.x = TRUE) # 2021
+j3 <- merge(codigos, t3, by.x = "ibge6", by.y = "Var1", all.x = TRUE) # 2022
+```
+
+### 9.5.5 Tratando frequencias NA
+```{r, warning=FALSE, message=FALSE}
+## colocar zero nas frequencias vazias
+j1$Freq[is.na(j1$Freq)] <- 0
+j2$Freq[is.na(j2$Freq)] <- 0
+j3$Freq[is.na(j3$Freq)] <- 0
+
+mapa20 <- j1
+mapa21 <- j2
+mapa22 <- j3
+```
+
+## 9.6 Taxa de mortalidade hospitalar por munícpio de internação
+### 9.6.1 Proporção em 2020
+```{r, warning=FALSE, message=FALSE}
+total_hosp_20 <- nrow(hospSP20)
+mapa20$tx_mor_local20 <- (mapa20$Freq/total_hosp_20)*100
+```
+
+### 9.6.2 Proporção em 2021
+```{r, warning=FALSE, message=FALSE}
+total_hosp_21 <- nrow(hospSP21)
+mapa21$tx_mor_local21 <- (mapa21$Freq/total_hosp_21)*100
+```
+
+### 9.6.3 Proporção em 2022
+```{r, warning=FALSE, message=FALSE}
+total_hosp_22 <- nrow(hospSP22)
+mapa22$tx_mor_local22 <- (mapa22$Freq/total_hosp_22)*100
+```
+
+## 9.7 Plotagem do gráfico
+### 9.7.1 Dados do território de São Paulo
+```{r,results='hide', warning=FALSE, message=FALSE}
+mapa_muni <- read_municipality(code_muni = "all", year=2010) %>% 
+  filter(code_state == 35)   
+```
+
+### 9.7.2 Convertendo dados para mesmo tipo
+```{r, warning=FALSE, message=FALSE}
+mapa20$code_muni <- as.double(mapa20$code_muni)
+mapa21$code_muni <- as.double(mapa21$code_muni)
+mapa22$code_muni <- as.double(mapa22$code_muni)
+```
+
+### 9.7.3 Join das bases
+```{r, warning=FALSE, message=FALSE}
+juntos2020 <- full_join(mapa_muni, mapa20, by="code_muni")  #função join, união de variáveis
+juntos2021 <- full_join(mapa_muni, mapa21, by="code_muni")  #função join, união de variáveis
+juntos2022 <- full_join(mapa_muni, mapa22, by="code_muni")  #função join, união de variáveis
+```
+
+### 9.7.4 Tratando municípios sem registros
+```{r, warning=FALSE, message=FALSE}
+#retirando os NA, para municípios sem registros
+juntos2020[is.na(juntos2020)] <- 0
+juntos2021[is.na(juntos2021)] <- 0
+juntos2022[is.na(juntos2022)] <- 0
+```
+
+## 9.8 Mapa de calor para taxa de mortalidade hospitalar
+### 9.8.1 Taxa em 2020
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# 2020
+ggplot()+ ## plotagem
+  geom_sf(data = juntos2020, aes(fill = tx_mor_local20), color = NA, size = 0.15)+ ## geometria dos municípios
+  geom_sf(data = juntos2020, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
+  labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2020",
+       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
+  scale_fill_gradientn(colours = cores2, limits = c(0.00, 15.00),
+                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white")) ## configuração do tema 
+```
+
+### 9.8.2 Taxa em 2021
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# 2021
+ggplot()+ ## plotagem
+  geom_sf(data = juntos2021, aes(fill = tx_mor_local21), color = NA, size = 0.15)+ ## geometria dos municípios
+  geom_sf(data = juntos2021, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
+  labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2021",
+       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
+  scale_fill_gradientn(colours = cores2, limits = c(0.00, 15.00),
+                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white")) ## configuração do tema 
+```
+
+
+### 9.8.3 Taxa em 2022
+```{r, fig.align='center',warning=FALSE, message=FALSE}
+# 2022
+ggplot()+ ## plotagem
+  geom_sf(data = juntos2022, aes(fill = tx_mor_local22), color = NA, size = 0.15)+ ## geometria dos municípios
+  geom_sf(data = juntos2022, color = "gray", fill = NA, size = 0.1) +  ## adição da linha cinza
+  labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2022",
+       caption = "Fonte: Elaboração própria")+ ## titulo e legenda
+  scale_fill_gradientn(colours = cores2, limits = c(0.00, 15.00),
+                       name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white")) ## configuração do tema
+```
+
+# Referências  
 [Boletim completo](https://www.seade.gov.br/coronavirus/)  
 [Repositório de dados](https://github.com/seade-R/dados-covid-sp)
 

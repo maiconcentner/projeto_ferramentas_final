@@ -290,7 +290,7 @@ max(dataset_cv_taxa_acumulado_final_2022$total_casos_novos)
 
 ## 2020
 ggplot()+
-  geom_sf(data = dataset_cv_taxa_final_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
+  geom_sf(data = dataset_cv_taxa_final_2020, aes(fill = total_casos_novos), color = NA, size = .15)+
   labs(title = "Coeficiente de variação da taxa de contaminação de COVID-19 em 2020 dos Municípios de SP",
        caption = "Fonte: Elaboração própria", size = 8)+
   scale_fill_gradientn(colours = cores, limits = c(0.00, 20.00),

@@ -1,4 +1,4 @@
-# setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG")
+setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\SRAG")
 
 # importação e instalação, caso seja a primeira vez no pc
 remotes::install_github("rpradosiqueira/brazilmaps")
@@ -77,9 +77,9 @@ write.table(SP20, file= "siveSP20.csv", sep=";", dec=",")
 ## dados gerais para sive/gripe
 
 siveSP <- read.csv("siveSP20a22.csv", header = TRUE, sep = ";", dec = ",") ## não rodei
-siveSP20 <- read.csv("siveSP20.csv", header = TRUE, sep = ";", dec = ",")
-siveSP21 <- read.csv("siveSP21.csv", header = TRUE, sep = ";", dec = ",")
-siveSP22 <- read.csv("siveSP22.csv", header = TRUE, sep = ";", dec = ",")
+siveSP20 <- read.csv("sivepSP20.csv", header = TRUE, sep = ";", dec = ",")
+siveSP21 <- read.csv("sivepSP21.csv", header = TRUE, sep = ";", dec = ",")
+siveSP22 <- read.csv("sivepSP22.csv", header = TRUE, sep = ";", dec = ",")
   
 
 ### filtro para notificacoes do total dos pacientes de SP
@@ -292,9 +292,9 @@ juntos2022 <- full_join(mapa_muni, mapa22, by="code_muni")  #função join, uni�
 
 #retirando os NA, para municípios sem registros
 
-juntos2020[is.na(juntos)] <- 0
-juntos2021[is.na(juntos)] <- 0
-juntos2022[is.na(juntos)] <- 0
+juntos2020[is.na(juntos2020)] <- 0
+juntos2021[is.na(juntos2021)] <- 0
+juntos2022[is.na(juntos2022)] <- 0
 
 
 View(juntos2020)
@@ -310,7 +310,7 @@ juntos2020$tx_mor_local20 <- cut(juntos2020$tx_mor_local20,breaks=c(-Inf, 1, 5, 
                                "80,0 a 89,9", "90,0 a 94,9 ", "95,0 a 99,9", "100,00"))
 
 ## escala sem categoria, color
-cores <- rcartocolor::carto_pal(6, "SunsetDark")
+cores2 <- rcartocolor::carto_pal(6, "SunsetDark")
 
 ## Mapa de calor para a taxa de mortalidade hospitalar nos anos de 
 
@@ -319,7 +319,7 @@ ggplot()+ ## plotagem
   geom_sf(data = juntos2020, aes(fill = tx_mor_local20), color = NA, size = 0.15)+ ## geometria dos municípios
   labs(title = "Taxa de mortalidade hospitalar por SRAG por COVID-19 em 2020",
        caption = "Fonte: Elaboração própria")+ ## titulo e legenda
-  scale_fill_gradientn(colours = cores, limits = c(0.00, 15.00),
+  scale_fill_gradientn(colours = cores2, limits = c(0.00, 15.00),
                        name="Taxa mortalidade", labels = label_number(big.mark="."))+ ## cores
   theme(plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),

@@ -7,7 +7,7 @@ library(ggplot2)
 cores <- rcartocolor::carto_pal(12, "Bold")
 # set da pasta de trabalho
 #<<<<<<< HEAD
-# setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
+ setwd("D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados")
 # (fer) comentei a linha anterior linha para me facilitar na hora de rodar o script
 # =======
 
@@ -27,7 +27,7 @@ dados_covid_sp$datahora <- as.Date(dados_covid_sp$datahora,
 glimpse(dados_covid_sp)
 
 # excluindo colunas que não iremos usar
-dados_covid_sp_tratado <- select(dados_covid_sp, -c(2,6,9))
+dados_covid_sp_tratado <- dados_covid_sp
 
 # verificando valores vazios
 dados_covid_sp_tratado %>% 
