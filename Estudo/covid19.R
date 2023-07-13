@@ -246,3 +246,104 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.background = element_rect(fill = "white"))
+
+
+# Agora, vamos elaborar os mapas de calor do coeficiente de variação (cv) da taxa de contaminhação
+# da covid-19 por Município de SP. Isso é importante para avaliarmos quanto a taxa de contaminação
+# variou ao decorrer do ano. Se o cv for baixo, significa que a taxa de variação é um dado homogêneo,
+# ou seja, não alterou muito, caso contrário, houve um aumento significativo da taxa de contaminação 
+# no município. Com isso, conseguimos rastrear como foi o progresso da contaminação no estado de SP.
+
+## Filtrando o dataset
+
+### 2020
+cv_taxa_casos_2020 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2020 & datahora <= data_final_2020) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sd(casos_novos/pop)/mean(casos_novos/pop))
+
+dataset_cv_taxa_final_2020 <- left_join(all_mun_sp, cv_taxa_casos_2020, by = c("code_muni" = "codigo_ibge"))
+min(dataset_cv_taxa_final_2020$total_casos_novos)
+max(dataset_cv_taxa_final_2020$total_casos_novos)
+
+### 2021
+cv_taxa_casos_2021 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2021 & datahora <= data_final_2021) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sd(casos_novos/pop)/mean(casos_novos/pop))
+
+dataset_cv_taxa_final_2021 <- left_join(all_mun_sp, cv_taxa_casos_2021, by = c("code_muni" = "codigo_ibge"))
+min(dataset_cv_taxa_final_2021$total_casos_novos)
+max(dataset_cv_taxa_final_2021$total_casos_novos)
+
+### 2022
+cv_taxa_casos_2022 <- dados_covid_sp %>%
+  filter(datahora >= data_inicio_2022 & datahora <= data_final_2022) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sd(casos_novos/pop)/mean(casos_novos/pop))
+
+dataset_cv_taxa_final_2022 <- left_join(all_mun_sp, cv_taxa_casos_2022, by = c("code_muni" = "codigo_ibge"))
+min(dataset_cv_taxa_final_2022$total_casos_novos)
+max(dataset_cv_taxa_final_2022$total_casos_novos)
+
+### Acumulado
+cv_taxa_acumulado_casos_2022 <- dados_covid_sp %>%
+  filter(datahora <= data_final_2022) %>%
+  group_by(nome_munic, codigo_ibge) %>%
+  summarise(total_casos_novos = sd(casos_novos/pop)/mean(casos_novos/pop))
+
+dataset_cv_taxa_acumulado_final_2022 <- left_join(all_mun_sp, cv_taxa_acumulado_casos_2022, by = c("code_muni" = "codigo_ibge"))
+min(dataset_cv_taxa_acumulado_final_2022$total_casos_novos)
+max(dataset_cv_taxa_acumulado_final_2022$total_casos_novos)
+
+## Gráficos:
+
+## 2020
+ggplot()+
+  geom_sf(data = dataset_cv_taxa_final_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Coeficiente de variação da taxa de contaminação de COVID-19 em 2020 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 20.00),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+## 2021
+ggplot()+
+  geom_sf(data = dataset_cv_taxa_final_2021, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Coeficiente de variação da taxa de contaminção de COVID-19 em 2021 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 20.00),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+## 2022
+ggplot()+
+  geom_sf(data = dataset_cv_taxa_final_2022, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Coeficiente de variação da taxa de contaminação de COVID-19 em 2022 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 20.00),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+## Acumulado
+ggplot()+
+  geom_sf(data = dataset_cv_taxa_acumulado_final_2022, aes(fill = total_casos_novos), color = NA, size = .15)+
+  labs(title = "Coeficiente de variação da taxa de contaminação acumulada de COVID-19 dos Municípios de SP",
+       caption = "Fonte: Elaboração própria", size = 8)+
+  scale_fill_gradientn(colours = cores, limits = c(0.00, 40.00),
+                       name="Total", labels = label_number(big.mark="."))+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "white"))
+
+

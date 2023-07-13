@@ -6,7 +6,7 @@ output:
     html_document:
       highlight: textmate
       includes:
-        in_header: "cabecalho.html"
+        in_header: 
       theme: flatly
       number_sections: no
       toc: yes
@@ -32,8 +32,8 @@ cores <- rcartocolor::carto_pal(12, "Bold")
 
 # 2. Carregando base de dados
 ```{r}
-dados_covid_sp <- read.csv('D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados\\dados_covid_sp.csv', sep = ";")
-base_sp <- read.csv('D:\\Mestrado\\1Sem_23\\Ferramentas computacionais\\projeto_final\\base_dados\\sp.csv', sep = ";")
+dados_covid_sp <- read.csv('dados/dados_covid_sp.csv', sep = ";")
+base_sp <- read.csv('dados/sp.csv', sep = ";")
 ```
 
 # 3. Tratamento dos dados
